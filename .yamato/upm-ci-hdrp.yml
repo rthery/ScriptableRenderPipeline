@@ -82,7 +82,8 @@ projects:
       UTR_RESULT=$?
       mkdir -p TestProjects/{{ project.folder }}/test-results/
       scp -i ~/.ssh/id_rsa_macmini -o "StrictHostKeyChecking=no" -r bokken@$BOKKEN_DEVICE_IP:/Users/bokken/ScriptableRenderPipeline/TestProjects/{{ project.folder }}/test-results/ TestProjects/{{ project.folder }}/test-results/
-      exit $UTR_RESULT
+      curl https://artifactory.eu-cph-1.unityops.net/core-automation/tools/warlock/install.py | python -u -
+      warlock -e "#srp-nightly-status" --label "HDRP OSX failure" exit $UTR_RESULT
 
   artifacts:
     logs:
