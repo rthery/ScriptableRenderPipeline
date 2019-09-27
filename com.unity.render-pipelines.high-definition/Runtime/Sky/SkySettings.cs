@@ -104,10 +104,10 @@ namespace UnityEngine.Rendering.HighDefinition
                 uniqueID = (uniqueIDs.Length == 0) ? -1 : ((SkyUniqueID)uniqueIDs[0]).uniqueID;
                 skyUniqueIDs[type] = uniqueID;
             }
-            
+
             return uniqueID;
         }
 
-        public abstract SkyRenderer CreateRenderer();
+        public abstract Type GetSkyRendererType();
     }
 }

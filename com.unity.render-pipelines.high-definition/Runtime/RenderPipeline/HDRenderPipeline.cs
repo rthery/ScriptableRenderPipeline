@@ -963,7 +963,7 @@ namespace UnityEngine.Rendering.HighDefinition
                 cmd.SetGlobalFloat(HDShaderIDs._ReplaceDiffuseForIndirect, hdCamera.frameSettings.IsEnabled(FrameSettingsField.ReplaceDiffuseForIndirect) ? 1.0f : 0.0f);
                 cmd.SetGlobalInt(HDShaderIDs._EnableSkyLighting, hdCamera.frameSettings.IsEnabled(FrameSettingsField.SkyLighting) ? 1 : 0);
 
-                m_SkyManager.SetGlobalSkyData(cmd);
+                m_SkyManager.SetGlobalSkyData(cmd, hdCamera);
 
                 #if ENABLE_RAYTRACING
                 bool validIndirectDiffuse = ValidIndirectDiffuseState(hdCamera);
@@ -3868,7 +3868,7 @@ namespace UnityEngine.Rendering.HighDefinition
             parameters.depthPyramidMip = (int)(parameters.debugDisplaySettings.data.fullscreenDebugMip * depthMipInfo.mipLevelCount);
             parameters.depthPyramidOffsets = depthMipInfo.GetOffsetBufferData(m_DepthPyramidMipLevelOffsetsBuffer);
 
-            parameters.skyReflectionTexture = m_SkyManager.skyReflection;
+            parameters.skyReflectionTexture = m_SkyManager.GetSkyReflection(hdCamera);
             parameters.debugLatlongMaterial = m_DebugDisplayLatlong;
             parameters.lightingOverlayParameters = PrepareLightLoopDebugOverlayParameters();
 
@@ -4024,7 +4024,7 @@ namespace UnityEngine.Rendering.HighDefinition
                         // If the matcap view is enabled, the sky isn't updated so we clear the background color
                         m_CurrentDebugDisplaySettings.data.lightingDebugSettings.debugLightingMode == DebugLightingMode.MatcapView ||
                         // If we want the sky but the sky don't exist, still clear with background color
-                        (hdCamera.clearColorMode == HDAdditionalCameraData.ClearColorMode.Sky && !m_SkyManager.IsVisualSkyValid()) ||
+                        (hdCamera.clearColorMode == HDAdditionalCameraData.ClearColorMode.Sky && !m_SkyManager.IsVisualSkyValid(hdCamera)) ||
                         // Special handling for Preview we force to clear with background color (i.e black)
                         // Note that the sky use in this case is the last one setup. If there is no scene or game, there is no sky use as reflection in the preview
                         HDUtils.IsRegularPreviewCamera(hdCamera.camera)
