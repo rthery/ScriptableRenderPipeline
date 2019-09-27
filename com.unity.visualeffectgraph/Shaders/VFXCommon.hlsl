@@ -79,7 +79,7 @@ float4 SampleTexture(VFXSampler2D s,float2 coords,float level = 0.0f)
 }
 
 #if !VFX_WORLD_SPACE && !VFX_LOCAL_SPACE
-#error VFXCommon.hlsl should be include after space defines
+#error VFXCommon.hlsl should be included after space defines
 #endif
 
 #if VFX_WORLD_SPACE && VFX_LOCAL_SPACE
