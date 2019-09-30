@@ -1023,9 +1023,12 @@ namespace UnityEngine.Rendering.HighDefinition
         //      Ambient Probe: Only used if Ambient Mode is set to dynamic in the Visual Environment component. Updated according to the Update Mode parameter.
         //      (Otherwise it uses the one from the static lighting sky)
         //      Sky Reflection Probe : Always used and updated according to the Update Mode parameter.
-        internal SkyUpdateContext visualSky { get; private set; } = new SkyUpdateContext();
-        internal SkyUpdateContext lightingSky { get; private set; } = null;
-        internal SkyUpdateContext m_LightingOverrideSky = new SkyUpdateContext();
+        internal SkyUpdateContext   visualSky { get; private set; } = new SkyUpdateContext();
+        internal SkyUpdateContext   lightingSky { get; private set; } = null;
+        // We need to cache this here because it's need in SkyManager.SetupAmbientProbe
+        // The issue is that this is called during culling which happens before Volume updates so we can't query it via volumes in there.
+        internal SkyAmbientMode skyAmbientMode { get; private set; }
+        internal SkyUpdateContext   m_LightingOverrideSky = new SkyUpdateContext();
 
         internal void UpdateCurrentSky(SkyManager skyManager)
         {
@@ -1034,10 +1037,13 @@ namespace UnityEngine.Rendering.HighDefinition
             {
                 visualSky.skySettings = skyManager.GetDefaultPreviewSkyInstance();
                 lightingSky = visualSky;
+                skyAmbientMode = SkyAmbientMode.Dynamic;
             }
             else
 #endif
             {
+                skyAmbientMode = VolumeManager.instance.stack.GetComponent<VisualEnvironment>().skyAmbientMode.value;
+
                 visualSky.skySettings = SkyManager.GetSkySetting(VolumeManager.instance.stack);
 
                 // Now, see if we have a lighting override

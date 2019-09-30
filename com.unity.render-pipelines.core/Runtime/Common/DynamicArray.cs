@@ -1,10 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace UnityEngine.Rendering
 {
-    class DynamicArray<T> where T: new()
+    public class DynamicArray<T> where T: new()
     //: IEnumerable<T>
     {
         T[] m_Array = null;

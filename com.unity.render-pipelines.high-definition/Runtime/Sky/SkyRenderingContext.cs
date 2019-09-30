@@ -14,8 +14,9 @@ namespace UnityEngine.Rendering.HighDefinition
         public CubemapArray skyboxBSDFCubemapArray { get; private set; }
         public bool supportsConvolution { get; private set; } = false;
 
-        public SkyRenderingContext(int resolution, int bsdfCount, bool supportsConvolution)
+        public SkyRenderingContext(int resolution, int bsdfCount, bool supportsConvolution, SphericalHarmonicsL2 ambientProbe)
         {
+            m_AmbientProbe = ambientProbe;
             this.supportsConvolution = supportsConvolution;
 
             // Compute buffer storing the resulting SH from diffuse convolution. L2 SH => 9 float per component.
@@ -51,6 +52,11 @@ namespace UnityEngine.Rendering.HighDefinition
         public void ClearAmbientProbe()
         {
             m_AmbientProbe = new SphericalHarmonicsL2();
+        }
+
+        public void UpdateAmbientProbe(in SphericalHarmonicsL2 probe)
+        {
+            m_AmbientProbe = probe;
         }
 
         public void OnComputeAmbientProbeDone(AsyncGPUReadbackRequest request)
