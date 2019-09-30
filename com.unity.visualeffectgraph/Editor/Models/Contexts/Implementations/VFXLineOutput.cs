@@ -13,10 +13,10 @@ namespace UnityEditor.VFX
         public override string codeGeneratorTemplate { get { return RenderPipeTemplate(useNativeLines ? "VFXParticleLinesHW" : "VFXParticleLinesSW"); } }
         public override VFXTaskType taskType { get { return useNativeLines ? VFXTaskType.ParticleLineOutput : VFXTaskType.ParticleQuadOutput; } }
 
-        [VFXSetting, SerializeField]
-        protected bool targetFromAttributes = true;
+        [VFXSetting, SerializeField, Tooltip("When enabled, a custom offset from the particle position can be specified for the particle line to connect to. When disabled, the line connects with the particle’s Target Position attribute.")]
+        protected bool useTargetOffset = true;
 
-        [VFXSetting(VFXSettingAttribute.VisibleFlags.InInspector), SerializeField]
+        [VFXSetting(VFXSettingAttribute.VisibleFlags.InInspector), SerializeField, Tooltip("When enabled, the Line Output will render native line primitives. These might be faster on some platforms, but they cannot be anti-aliased.")]
         protected bool useNativeLines = false;
 
         protected override IEnumerable<string> filteredOutSettings
@@ -45,7 +45,7 @@ namespace UnityEditor.VFX
                 yield return new VFXAttributeInfo(VFXAttribute.Alpha,           VFXAttributeMode.Read);
                 yield return new VFXAttributeInfo(VFXAttribute.Alive,           VFXAttributeMode.Read);
 
-                if (targetFromAttributes)
+                if (useTargetOffset)
                 {
                     yield return new VFXAttributeInfo(VFXAttribute.PivotX, VFXAttributeMode.Read);
                     yield return new VFXAttributeInfo(VFXAttribute.PivotY, VFXAttributeMode.Read);
@@ -73,8 +73,9 @@ namespace UnityEditor.VFX
             }
         }
 
-        public class TargetFromAttributesProperties
+        public class TargetOffsetProperties
         {
+            [Tooltip("Sets an offset from the particle position for the line to connect to.")]
             public Vector3 targetOffset = Vector3.up;
         }
 
@@ -83,7 +84,7 @@ namespace UnityEditor.VFX
             foreach (var exp in base.CollectGPUExpressions(slotExpressions))
                 yield return exp;
 
-            if (targetFromAttributes)
+            if (useTargetOffset)
                 yield return slotExpressions.First(o => o.name == "targetOffset");
         }
 
@@ -92,8 +93,8 @@ namespace UnityEditor.VFX
             get
             {
                 var properties = base.inputProperties;
-                if (targetFromAttributes)
-                    properties = PropertiesFromType("TargetFromAttributesProperties").Concat(properties);
+                if (useTargetOffset)
+                    properties = PropertiesFromType("TargetOffsetProperties").Concat(properties);
 
                 return properties;
             }
@@ -106,7 +107,7 @@ namespace UnityEditor.VFX
                 foreach (var d in base.additionalDefines)
                     yield return d;
 
-                if (targetFromAttributes)
+                if (useTargetOffset)
                     yield return "TARGET_FROM_ATTRIBUTES";
             }
         }

@@ -10,7 +10,7 @@ namespace UnityEditor.VFX
     [VFXInfo(variantProvider = typeof(VFXPlanarPrimitiveVariantProvider))]
     class VFXPlanarPrimitiveOutput : VFXAbstractParticleOutput
     {
-        [VFXSetting(VFXSettingAttribute.VisibleFlags.InInspector), SerializeField]
+        [VFXSetting(VFXSettingAttribute.VisibleFlags.InInspector), SerializeField, Tooltip("Specifies what primitive type to use for this output. Triangle outputs have fewer vertices, octagons can be used to conform the geometry closer to the texture to avoid overdraw, and quads are a good middle ground.")]
         protected VFXPrimitiveType primitiveType = VFXPrimitiveType.Quad;
 
         //[VFXSetting(VFXSettingAttribute.VisibleFlags.InInspector)]
@@ -96,6 +96,7 @@ namespace UnityEditor.VFX
 
         public class InputProperties
         {
+            [Tooltip("Specifies the base color (RGB) and opacity (A) of the particle.")]
             public Texture2D mainTexture = VFXResources.defaultResources.particleTexture;
         }
     }
