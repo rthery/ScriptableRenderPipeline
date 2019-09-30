@@ -312,7 +312,6 @@ namespace UnityEngine.Rendering.HighDefinition
             CoreUtils.Destroy(m_StandardSkyboxMaterial);
             CoreUtils.Destroy(m_BlitCubemapMaterial);
             CoreUtils.Destroy(m_OpaqueAtmScatteringMaterial);
-            CoreUtils.Destroy(m_ComputeAmbientProbeCS);
 
             RTHandles.Release(m_SkyboxBSDFCubemapIntermediate);
             CoreUtils.Destroy(m_BlackCubemapArray);
