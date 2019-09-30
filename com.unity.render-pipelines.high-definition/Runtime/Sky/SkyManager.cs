@@ -381,6 +381,53 @@ namespace UnityEngine.Rendering.HighDefinition
             return GetReflectionTexture(hdCamera.lightingSky);
         }
 
+        internal void SetupAmbientProbe(HDCamera hdCamera)
+        {
+            // If a camera just returns from being disabled, sky is not setup yet for it.
+            if (hdCamera.lightingSky == null)
+            {
+                RenderSettings.ambientMode = AmbientMode.Custom;
+                RenderSettings.ambientProbe = m_BlackAmbientProbe;
+                return;
+            }
+
+            bool useRealtimeGI = true;
+#if UNITY_EDITOR
+            useRealtimeGI = UnityEditor.Lightmapping.realtimeGI;
+#endif
+            // Working around GI current system
+            // When using baked lighting, setting up the ambient probe should be sufficient => We only need to update RenderSettings.ambientProbe with either the static or visual sky ambient probe (computed from GPU)
+            // When using real time GI. Enlighten will pull sky information from Skybox material. So in order for dynamic GI to work, we update the skybox material texture and then set the ambient mode to SkyBox
+            // Problem: We can't check at runtime if realtime GI is enabled so we need to take extra care (see useRealtimeGI usage below)
+            RenderSettings.ambientMode = AmbientMode.Custom; // Needed to specify ourselves the ambient probe (this will update internal ambient probe data passed to shaders)
+            if (hdCamera.skyAmbientMode == SkyAmbientMode.Static)
+            {
+                RenderSettings.ambientProbe = GetAmbientProbe(m_StaticLightingSky);
+                m_StandardSkyboxMaterial.SetTexture("_Tex", GetSkyCubemap(m_StaticLightingSky));
+            }
+            else
+            {
+                RenderSettings.ambientProbe = GetAmbientProbe(hdCamera.lightingSky);
+                // Workaround in the editor:
+                // When in the editor, if we use baked lighting, we need to setup the skybox material with the static lighting texture otherwise when baking, the dynamic texture will be used
+                if (useRealtimeGI)
+                {
+                    m_StandardSkyboxMaterial.SetTexture("_Tex", GetSkyCubemap(hdCamera.lightingSky));
+                }
+                else
+                {
+                    m_StandardSkyboxMaterial.SetTexture("_Tex", GetSkyCubemap(m_StaticLightingSky));
+                }
+            }
+
+            // This is only needed if we use realtime GI otherwise enlighten won't get the right sky information
+            RenderSettings.skybox = m_StandardSkyboxMaterial; // Setup this material as the default to be use in RenderSettings
+            RenderSettings.ambientIntensity = 1.0f;
+            RenderSettings.ambientMode = AmbientMode.Skybox; // Force skybox for our HDRI
+            RenderSettings.reflectionIntensity = 1.0f;
+            RenderSettings.customReflection = null;
+        }
+
         void BlitCubemap(CommandBuffer cmd, Cubemap source, RenderTexture dest)
         {
             var propertyBlock = new MaterialPropertyBlock();
@@ -463,15 +510,6 @@ namespace UnityEngine.Rendering.HighDefinition
             }
         }
 
-        void ReleaseCachedContext(int id)
-        {
-            ref var cachedContext = ref m_CachedSkyContexts[id];
-            cachedContext.refCount--;
-            if (cachedContext.refCount == 0)
-            {
-                cachedContext.Reset();
-            }
-        }
 
         void AllocateNewRenderingContext(SkyUpdateContext skyContext, int slot, int newHash, bool supportConvolution, in SphericalHarmonicsL2 previousAmbientProbe)
         {
@@ -556,14 +594,14 @@ namespace UnityEngine.Rendering.HighDefinition
             }
         }
 
-        int ComputeSkyHash(SkyUpdateContext skyContext, Light sunLight, SkyAmbientMode ambientMode)
+        void ReleaseCachedContext(int id)
         {
-            int sunHash = 0;
-            if (sunLight != null)
-                sunHash = GetSunLightHashCode(sunLight);
-            int skyHash = sunHash * 23 + skyContext.skySettings.GetHashCode();
-            skyHash = skyHash * 23 + (ambientMode == SkyAmbientMode.Static ? 1 : 0);
-            return skyHash;
+            ref var cachedContext = ref m_CachedSkyContexts[id];
+            cachedContext.refCount--;
+            if (cachedContext.refCount == 0)
+            {
+                cachedContext.Reset();
+            }
         }
 
         bool IsCachedContextValid(SkyUpdateContext skyContext)
@@ -574,6 +612,33 @@ namespace UnityEngine.Rendering.HighDefinition
             int id = skyContext.cachedSkyRenderingContextId;
             // When the renderer changes, the cached context is no longer valid so we sometimes need to check that.
             return id != -1 && (skyContext.skySettings.GetSkyRendererType() == m_CachedSkyContexts[id].type) && (m_CachedSkyContexts[id].hash != 0);
+        }
+
+        void CleanupUnusedCachedContexts()
+        {
+            for (int i = 0; i < m_CachedSkyContexts.size; ++i)
+            {
+                ref var context = ref m_CachedSkyContexts[i];
+                if (context.lastFrameUsed != 0 && (m_CurrentFrameIndex - context.lastFrameUsed > 30))
+                {
+                    context.Cleanup();
+                }
+            }
+        }
+
+        int ComputeSkyHash(SkyUpdateContext skyContext, Light sunLight, SkyAmbientMode ambientMode)
+        {
+            int sunHash = 0;
+            if (sunLight != null)
+                sunHash = GetSunLightHashCode(sunLight);
+            int skyHash = sunHash * 23 + skyContext.skySettings.GetHashCode();
+            skyHash = skyHash * 23 + (ambientMode == SkyAmbientMode.Static ? 1 : 0);
+            return skyHash;
+        }
+
+        public void RequestEnvironmentUpdate()
+        {
+            m_UpdateRequired = true;
         }
 
         public void UpdateEnvironment(HDCamera hdCamera, SkyUpdateContext skyContext, Light sunLight, bool updateRequired, bool updateAmbientProbe, SkyAmbientMode ambientMode, int frameIndex, CommandBuffer cmd)
@@ -663,58 +728,6 @@ namespace UnityEngine.Rendering.HighDefinition
             }
         }
 
-        public void RequestEnvironmentUpdate()
-        {
-            m_UpdateRequired = true;
-        }
-
-        internal void SetupAmbientProbe(HDCamera hdCamera)
-        {
-            // If a camera just returns from being disabled, sky is not setup yet for it.
-            if (hdCamera.lightingSky == null)
-            {
-                RenderSettings.ambientMode = AmbientMode.Custom;
-                RenderSettings.ambientProbe = m_BlackAmbientProbe;
-                return;
-            }
-
-            bool useRealtimeGI = true;
-#if UNITY_EDITOR
-            useRealtimeGI = UnityEditor.Lightmapping.realtimeGI;
-#endif
-            // Working around GI current system
-            // When using baked lighting, setting up the ambient probe should be sufficient => We only need to update RenderSettings.ambientProbe with either the static or visual sky ambient probe (computed from GPU)
-            // When using real time GI. Enlighten will pull sky information from Skybox material. So in order for dynamic GI to work, we update the skybox material texture and then set the ambient mode to SkyBox
-            // Problem: We can't check at runtime if realtime GI is enabled so we need to take extra care (see useRealtimeGI usage below)
-            RenderSettings.ambientMode = AmbientMode.Custom; // Needed to specify ourselves the ambient probe (this will update internal ambient probe data passed to shaders)
-            if (hdCamera.skyAmbientMode == SkyAmbientMode.Static)
-            {
-                RenderSettings.ambientProbe = GetAmbientProbe(m_StaticLightingSky);
-                m_StandardSkyboxMaterial.SetTexture("_Tex", GetSkyCubemap(m_StaticLightingSky));
-            }
-            else
-            {
-                RenderSettings.ambientProbe = GetAmbientProbe(hdCamera.lightingSky);
-                // Workaround in the editor:
-                // When in the editor, if we use baked lighting, we need to setup the skybox material with the static lighting texture otherwise when baking, the dynamic texture will be used
-                if (useRealtimeGI)
-                {
-                    m_StandardSkyboxMaterial.SetTexture("_Tex", GetSkyCubemap(hdCamera.lightingSky));
-                }
-                else
-                {
-                    m_StandardSkyboxMaterial.SetTexture("_Tex", GetSkyCubemap(m_StaticLightingSky));
-                }
-            }
-
-            // This is only needed if we use realtime GI otherwise enlighten won't get the right sky information
-            RenderSettings.skybox = m_StandardSkyboxMaterial; // Setup this material as the default to be use in RenderSettings
-            RenderSettings.ambientIntensity = 1.0f;
-            RenderSettings.ambientMode = AmbientMode.Skybox; // Force skybox for our HDRI
-            RenderSettings.reflectionIntensity = 1.0f;
-            RenderSettings.customReflection = null;
-        }
-
         public void UpdateEnvironment(HDCamera hdCamera, Light sunLight, int frameIndex, CommandBuffer cmd)
         {
             m_CurrentFrameIndex = frameIndex;
@@ -749,18 +762,6 @@ namespace UnityEngine.Rendering.HighDefinition
             else
             {
                 cmd.SetGlobalInt(HDShaderIDs._EnvLightSkyEnabled, 0);
-            }
-        }
-
-        void CleanupUnusedCachedContexts()
-        {
-            for (int i = 0; i < m_CachedSkyContexts.size; ++i)
-            {
-                ref var context = ref m_CachedSkyContexts[i];
-                if (context.lastFrameUsed != 0 && (m_CurrentFrameIndex - context.lastFrameUsed > 30))
-                {
-                    context.Cleanup();
-                }
             }
         }
 
@@ -874,57 +875,58 @@ namespace UnityEngine.Rendering.HighDefinition
             m_StaticLightingSkies.Remove(staticLightingSky);
         }
 
-        public Texture2D ExportSkyToTexture()
+        public Texture2D ExportSkyToTexture(Camera camera)
         {
-            //if (!m_VisualSky.IsValid())
-            //{
-            //    Debug.LogError("Cannot export sky to a texture, no Sky is setup.");
-            //    return null;
-            //}
+            var hdCamera = HDCamera.GetOrCreate(camera);
 
-            //RenderTexture skyCubemap = m_CurrentSkyRenderingContext.cubemapRT;
+            if (!hdCamera.visualSky.IsValid() || !IsCachedContextValid(hdCamera.visualSky))
+            {
+                Debug.LogError("Cannot export sky to a texture, no valid Sky is setup (Also make sure the game view has been rendered at least once).");
+                return null;
+            }
 
-            //int resolution = skyCubemap.width;
+            ref var cachedContext = ref m_CachedSkyContexts[hdCamera.visualSky.cachedSkyRenderingContextId];
+            RenderTexture skyCubemap = cachedContext.renderingContext.skyboxCubemapRT;
 
-            //var tempRT = new RenderTexture(resolution * 6, resolution, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear)
-            //{
-            //    dimension = TextureDimension.Tex2D,
-            //    useMipMap = false,
-            //    autoGenerateMips = false,
-            //    filterMode = FilterMode.Trilinear
-            //};
-            //tempRT.Create();
+            int resolution = skyCubemap.width;
 
-            //var temp = new Texture2D(resolution * 6, resolution, TextureFormat.RGBAFloat, false);
-            //var result = new Texture2D(resolution * 6, resolution, TextureFormat.RGBAFloat, false);
+            var tempRT = new RenderTexture(resolution * 6, resolution, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear)
+            {
+                dimension = TextureDimension.Tex2D,
+                useMipMap = false,
+                autoGenerateMips = false,
+                filterMode = FilterMode.Trilinear
+            };
+            tempRT.Create();
 
-            //// Note: We need to invert in Y the cubemap faces because the current sky cubemap is inverted (because it's a RT)
-            //// So to invert it again so that it's a proper cubemap image we need to do it in several steps because ReadPixels does not have scale parameters:
-            //// - Convert the cubemap into a 2D texture
-            //// - Blit and invert it to a temporary target.
-            //// - Read this target again into the result texture.
-            //int offset = 0;
-            //for (int i = 0; i < 6; ++i)
-            //{
-            //    UnityEngine.Graphics.SetRenderTarget(skyCubemap, 0, (CubemapFace)i);
-            //    temp.ReadPixels(new Rect(0, 0, resolution, resolution), offset, 0);
-            //    temp.Apply();
-            //    offset += resolution;
-            //}
+            var temp = new Texture2D(resolution * 6, resolution, TextureFormat.RGBAFloat, false);
+            var result = new Texture2D(resolution * 6, resolution, TextureFormat.RGBAFloat, false);
 
-            //// Flip texture.
-            //UnityEngine.Graphics.Blit(temp, tempRT, new Vector2(1.0f, -1.0f), new Vector2(0.0f, 0.0f));
+            // Note: We need to invert in Y the cubemap faces because the current sky cubemap is inverted (because it's a RT)
+            // So to invert it again so that it's a proper cubemap image we need to do it in several steps because ReadPixels does not have scale parameters:
+            // - Convert the cubemap into a 2D texture
+            // - Blit and invert it to a temporary target.
+            // - Read this target again into the result texture.
+            int offset = 0;
+            for (int i = 0; i < 6; ++i)
+            {
+                UnityEngine.Graphics.SetRenderTarget(skyCubemap, 0, (CubemapFace)i);
+                temp.ReadPixels(new Rect(0, 0, resolution, resolution), offset, 0);
+                temp.Apply();
+                offset += resolution;
+            }
 
-            //result.ReadPixels(new Rect(0, 0, resolution * 6, resolution), 0, 0);
-            //result.Apply();
+            // Flip texture.
+            UnityEngine.Graphics.Blit(temp, tempRT, new Vector2(1.0f, -1.0f), new Vector2(0.0f, 0.0f));
 
-            //UnityEngine.Graphics.SetRenderTarget(null);
-            //CoreUtils.Destroy(temp);
-            //CoreUtils.Destroy(tempRT);
+            result.ReadPixels(new Rect(0, 0, resolution * 6, resolution), 0, 0);
+            result.Apply();
 
-            //return result;
+            UnityEngine.Graphics.SetRenderTarget(null);
+            CoreUtils.Destroy(temp);
+            CoreUtils.Destroy(tempRT);
 
-            return null;
+            return result;
         }
 
 #if UNITY_EDITOR

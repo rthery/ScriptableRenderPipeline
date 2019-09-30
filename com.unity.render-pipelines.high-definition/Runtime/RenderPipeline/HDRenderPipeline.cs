@@ -3172,9 +3172,9 @@ namespace UnityEngine.Rendering.HighDefinition
             }
         }
 
-        public Texture2D ExportSkyToTexture()
+        public Texture2D ExportSkyToTexture(Camera camera)
         {
-            return m_SkyManager.ExportSkyToTexture();
+            return m_SkyManager.ExportSkyToTexture(camera);
         }
 
 
