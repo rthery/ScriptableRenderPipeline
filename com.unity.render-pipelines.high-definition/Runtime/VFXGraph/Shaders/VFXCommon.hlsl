@@ -130,7 +130,7 @@ void VFXApplyShadowBias(inout float4 posCS, inout float3 posWS)
 {
 }
 
-float3 VFXGetPositionRWS(float3 posWS);
+float3 VFXGetPositionRWS(float3 posWS); //Forward declaration because this function is actually implemented in VFXCommonOutput.hlsl (but expected to be used in fragment only)
 float4 VFXApplyFog(float4 color,float4 posCS,float3 posWS)
 {
     float3 posRWS = VFXGetPositionRWS(posWS);
