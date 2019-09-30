@@ -618,7 +618,8 @@ namespace UnityEngine.Rendering.HighDefinition
                         if (hdPipeline.asset.currentPlatformRenderPipelineSettings.lightLoopSettings.skyLightingOverrideLayerMask == -1)
                             volumeLayerMask = -1;
                         else
-                            volumeLayerMask = (-1 & ~hdPipeline.asset.currentPlatformRenderPipelineSettings.lightLoopSettings.skyLightingOverrideLayerMask);
+                            // Remove lighting override mask and layer 31 which is used by preview/lookdev
+                            volumeLayerMask = (-1 & ~(hdPipeline.asset.currentPlatformRenderPipelineSettings.lightLoopSettings.skyLightingOverrideLayerMask | (1 << 31)));
                     }
                 }
             }
