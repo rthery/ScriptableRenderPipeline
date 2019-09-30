@@ -37,6 +37,6 @@ namespace UnityEngine.Rendering.HighDefinition
             return hash;
         }
 
-        public override Type GetSkyRendererType() { return typeof(ProceduralSkyRenderer); }
+        public override System.Type GetSkyRendererType() { return typeof(ProceduralSkyRenderer); }
     }
 }
