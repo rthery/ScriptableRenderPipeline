@@ -7,7 +7,6 @@ namespace UnityEngine.Rendering.HighDefinition
 
         public int      skyParametersHash = -1;
         public float    currentUpdateTime = 0.0f;
-        public int      updatedFramesRequired = 1; // The first frame after the scene load is currently not rendered correctly
 
         public SkySettings skySettings
         {
@@ -19,7 +18,6 @@ namespace UnityEngine.Rendering.HighDefinition
 
                 skyParametersHash = -1;
                 m_SkySettings = value;
-                updatedFramesRequired = 1;
                 currentUpdateTime = 0.0f;
             }
         }

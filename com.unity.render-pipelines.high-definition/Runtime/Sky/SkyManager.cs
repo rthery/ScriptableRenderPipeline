@@ -336,7 +336,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
         SphericalHarmonicsL2 GetAmbientProbe(SkyUpdateContext skyContext)
         {
-            if (skyContext.IsValid())
+            if (skyContext.IsValid() && IsCachedContextValid(skyContext))
             {
                 ref var context = ref m_CachedSkyContexts[skyContext.cachedSkyRenderingContextId];
                 context.lastFrameUsed = m_CurrentFrameIndex;
@@ -350,7 +350,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
         Texture GetSkyCubemap(SkyUpdateContext skyContext)
         {
-            if (skyContext.IsValid())
+            if (skyContext.IsValid() && IsCachedContextValid(skyContext))
             {
                 ref var context = ref m_CachedSkyContexts[skyContext.cachedSkyRenderingContextId];
                 context.lastFrameUsed = m_CurrentFrameIndex;
@@ -364,7 +364,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
         Texture GetReflectionTexture(SkyUpdateContext skyContext)
         {
-            if (skyContext.IsValid())
+            if (skyContext.IsValid() && IsCachedContextValid(skyContext))
             {
                 ref var context = ref m_CachedSkyContexts[skyContext.cachedSkyRenderingContextId];
                 context.lastFrameUsed = m_CurrentFrameIndex;
@@ -508,7 +508,7 @@ namespace UnityEngine.Rendering.HighDefinition
             bool supportConvolution = true; // TODO: See how we can avoid allocating associated RT for static sky (issue is when the same sky is used for both static and lighting sky)
             SphericalHarmonicsL2 cachedAmbientProbe = new SphericalHarmonicsL2();
             // Release the old context if needed.
-            if (updateContext.cachedSkyRenderingContextId != -1)
+            if (IsCachedContextValid(updateContext))
             {
                 var cachedContext = m_CachedSkyContexts[updateContext.cachedSkyRenderingContextId];
                 if (newHash != cachedContext.hash || updateContext.skySettings.GetSkyRendererType() != cachedContext.type)
@@ -573,7 +573,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
             int id = skyContext.cachedSkyRenderingContextId;
             // When the renderer changes, the cached context is no longer valid so we sometimes need to check that.
-            return id != -1 && (skyContext.skySettings.GetSkyRendererType() == m_CachedSkyContexts[id].type);
+            return id != -1 && (skyContext.skySettings.GetSkyRendererType() == m_CachedSkyContexts[id].type) && (m_CachedSkyContexts[id].hash != 0);
         }
 
         public void UpdateEnvironment(HDCamera hdCamera, SkyUpdateContext skyContext, Light sunLight, bool updateRequired, bool updateAmbientProbe, SkyAmbientMode ambientMode, int frameIndex, CommandBuffer cmd)
@@ -594,10 +594,10 @@ namespace UnityEngine.Rendering.HighDefinition
                 m_BuiltinParameters.skySettings = skyContext.skySettings;
 
                 int skyHash = ComputeSkyHash(skyContext, sunLight, ambientMode);
-                bool forceUpdate = (updateRequired || skyContext.updatedFramesRequired > 0);
+                bool forceUpdate = updateRequired;
 
                 // At first initialization, we need to acquire a rendering context and force a first update
-                if (skyContext.cachedSkyRenderingContextId == -1)
+                if (!IsCachedContextValid(skyContext))
                 {
                     AcquireSkyRenderingContext(skyContext, skyHash);
                     forceUpdate = true;
@@ -644,7 +644,6 @@ namespace UnityEngine.Rendering.HighDefinition
 
                         skyContext.skyParametersHash = skyHash;
                         skyContext.currentUpdateTime = 0.0f;
-                        skyContext.updatedFramesRequired--;
 
 #if UNITY_EDITOR
                         // In the editor when we change the sky we want to make the GI dirty so when baking again the new sky is taken into account.
@@ -735,8 +734,6 @@ namespace UnityEngine.Rendering.HighDefinition
                     UpdateEnvironment(hdCamera, m_StaticLightingSky, sunLight, false, true, ambientMode, frameIndex, cmd);
                 }
             }
-
-            //SetupAmbientProbe(hdCamera);
 
             m_UpdateRequired = false;
 
