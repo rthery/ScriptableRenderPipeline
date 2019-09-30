@@ -51,6 +51,14 @@ struct VFXSamplerCubeArray
     SamplerState s;
 };
 
+#if !VFX_WORLD_SPACE && !VFX_LOCAL_SPACE
+#error VFXCommon.hlsl should be included after space defines
+#endif
+
+#if VFX_WORLD_SPACE && VFX_LOCAL_SPACE
+#error VFX_WORLD_SPACE & VFX_LOCAL_SPACE are both enabled
+#endif
+
 #ifdef VFX_WORLD_SPACE
 float3 TransformDirectionVFXToWorld(float3 dir)             { return dir; }
 float3 TransformPositionVFXToWorld(float3 pos)              { return pos; }
@@ -76,32 +84,6 @@ float3 GetViewVFXPosition()                                 { return mul(VFXGetW
 float4 SampleTexture(VFXSampler2D s,float2 coords,float level = 0.0f)
 {
     return s.t.SampleLevel(s.s,coords, level);
-}
-
-#if !VFX_WORLD_SPACE && !VFX_LOCAL_SPACE
-#error VFXCommon.hlsl should be included after space defines
-#endif
-
-#if VFX_WORLD_SPACE && VFX_LOCAL_SPACE
-#error VFX_WORLD_SPACE & VFX_LOCAL_SPACE are both enabled
-#endif
-
-float3 VFXGetPositionRWS(float3 posWS)
-{
-#if VFX_WORLD_SPACE
-    return GetCameraRelativePositionWS(posWS);
-#else
-    return posWS;
-#endif
-}
-
-float3 VFXGetPositionAWS(float3 posWS)
-{
-#if VFX_LOCAL_SPACE
-    return GetAbsolutePositionWS(posWS);
-#else
-    return posWS;
-#endif
 }
 
 float4 SampleTexture(VFXSampler2DArray s,float2 coords,float slice,float level = 0.0f)
