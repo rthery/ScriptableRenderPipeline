@@ -3,7 +3,7 @@ editors:
 platforms:
   - name: Windows64
     type: Unity::VM::GPU
-    image: sdet/gamecode_win10:stable
+    image: slough-ops/gamecode-win10-nvidia436
     flavor: b1.large
   - name: OSX_Metal
     type: Unity::metal::macmini
@@ -38,7 +38,7 @@ mac_apis:
     {% else %}
     type: Unity::VM::GPU
     {% endif %} 
-    image: sdet/gamecode_win10:stable      
+    image: slough-ops/gamecode-win10-nvidia436:latest    
     flavor: b1.large
   commands:
     - git clone git@github.cds.internal.unity3d.com:unity/utr.git TestProjects/{{ project.folder }}/utr
