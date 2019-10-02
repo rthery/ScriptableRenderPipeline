@@ -9,7 +9,7 @@ namespace UnityEngine.Rendering.HighDefinition
         /// <param name="gameObject">The GameObject on which the light is going to be added</param>
         /// <param name="lightType">The Type of the HDRP light to Add</param>
         /// <returns>The created HDRP Light component</returns>
-        public static HDAdditionalLightData AddHDLight(this GameObject gameObject, HDLightType lightType)
+        public static HDAdditionalLightData AddHDLight(this GameObject gameObject, HDCondensedLightType lightType)
         {
             var hdLight = gameObject.AddComponent< HDAdditionalLightData >();
 
