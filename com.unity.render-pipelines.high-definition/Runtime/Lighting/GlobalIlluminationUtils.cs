@@ -188,9 +188,24 @@ namespace UnityEngine.Rendering.HighDefinition
                         case AreaLightShape.Tube:
                             lightDataGI.InitNoBake(lightDataGI.instanceID);
                             break;
+                            
+                        case AreaLightShape.Disc:
+                            lightDataGI.orientation = light.transform.rotation;
+                            lightDataGI.position = light.transform.position;
+                            lightDataGI.range = light.range;
+                            lightDataGI.coneAngle = 0.0f;
+                            lightDataGI.innerConeAngle = 0.0f;
 #if UNITY_EDITOR
+                            lightDataGI.shape0 = light.areaSize.x; // [TODO: we must feel the radius here instead... to check]
+                            lightDataGI.shape1 = light.areaSize.y; // [TODO: we must feel the radius here instead... to check]
 #else
+                            ld.shape0 = 0.0f;
+                            ld.shape1 = 0.0f;
 #endif
+                            // TEMP: for now, if we bake a rectangle type this will disable the light for runtime, need to speak with GI team about it!
+                            lightDataGI.type = UnityEngine.Experimental.GlobalIllumination.LightType.Disc;
+                            lightDataGI.falloff = add.applyRangeAttenuation ? FalloffType.InverseSquared : FalloffType.InverseSquaredNoRangeAttenuation;
+                            break;
 
                         default:
                             Debug.Assert(false, "Encountered an unknown AreaLightShape.");

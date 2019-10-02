@@ -44,6 +44,7 @@ namespace UnityEngine.Rendering.HighDefinition
     {
         Rectangle,
         Tube,
+        Disc,
         // Sphere,
     };
 
@@ -216,6 +217,14 @@ namespace UnityEngine.Rendering.HighDefinition
                         legacyLight.lightmapBakeType = LightmapBakeType.Realtime;
 #endif
                         return HDLightType.Area;
+                    case LightType.Disc:
+                        areaLightShape = AreaLightShape.Disc;
+
+                        //sanitycheck on the baking mode
+#if UNITY_EDITOR
+                        legacyLight.lightmapBakeType = LightmapBakeType.Baked;
+#endif
+                        return HDLightType.Area;
                     default:
                         Debug.Assert(false, $"Unknown {typeof(LightType).Name} {legacyLight.type}. Fallback on Point");
                         return HDLightType.Point;
@@ -236,8 +245,13 @@ namespace UnityEngine.Rendering.HighDefinition
                         m_PointlightHDType = PointLightHDType.Punctual;
                         break;
                     case HDLightType.Area:
+                        if (areaLightShape == AreaLightShape.Disc)
+                            legacyLight.type = LightType.Disc;
+                        else
+                        {
                             legacyLight.type = LightType.Point;
                             m_PointlightHDType = PointLightHDType.Area;
+                        }
                         break;
                     default:
                         Debug.Assert(false, $"Unknown {typeof(HDLightType).Name} {value}.");
@@ -313,6 +327,10 @@ namespace UnityEngine.Rendering.HighDefinition
                     type = HDLightType.Area;
                     areaLightShape = AreaLightShape.Tube;
                     break;
+                case HDCondensedLightType.DiscArea:
+                    type = HDLightType.Area;
+                    areaLightShape = AreaLightShape.Disc;
+                    break;
             }
         }
 
@@ -339,6 +357,7 @@ namespace UnityEngine.Rendering.HighDefinition
                     {
                         case AreaLightShape.Rectangle: return HDCondensedLightType.RectangleArea;
                         case AreaLightShape.Tube: return HDCondensedLightType.TubeArea;
+                        case AreaLightShape.Disc: return HDCondensedLightType.DiscArea;
                         default: throw new Exception($"Unknown {typeof(AreaLightShape)}: {areaLightShape}");
                     }
                 default: throw new Exception($"Unknown {typeof(HDLightType)}: {type}");
