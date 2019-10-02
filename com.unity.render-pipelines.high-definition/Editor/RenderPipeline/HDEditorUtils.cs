@@ -276,22 +276,59 @@ namespace UnityEditor.Rendering.HighDefinition
 
     internal static partial class SerializedPropertyExtention
     {
+        //[TODO: check example]
         /// <summary>
-        /// Helper to get an enum value from a SerializedProperty
+        /// Helper to get an enum value from a SerializedProperty.
+        /// This handle case where index do not correspond to enum value.
+        /// <example>
+        /// <code>
+        /// enum MyEnum
+        /// {
+        ///     A = 2,
+        ///     B = 4,
+        /// }
+        /// public class MyObject : MonoBehavior
+        /// {
+        ///     public MyEnum theEnum = MyEnum.A;
+        /// }    
+        /// #if UNITY_EDITOR
+        /// [CustomEditor(typeof(MyObject))]
+        /// class MyObjectEditor : Editor
+        /// {
+        ///     public override void OnInspectorGUI()
+        ///     {
+        ///         Debug.Log($"By enumValueIndex: {(MyEnum)serializedObject.FindProperty("theEnum").enumValueIndex}");         //write the value (MyEnum)(0)
+        ///         Debug.Log($"By GetEnumValue: {(MyEnum)serializedObject.FindProperty("theEnum").GetEnumValue<MyEnum>()}");   //write the value MyEnum.A
+        ///     }
+        /// }
+        /// #endif
+        /// </code>
+        /// </example>
         /// </summary>
         public static T GetEnumValue<T>(this SerializedProperty property)
-            => (T)System.Enum.GetValues(typeof(T)).GetValue(property.enumValueIndex);
+            => property.hasMultipleDifferentValues
+            ? (T)(object)(-1)
+            : (T)System.Enum.GetValues(typeof(T)).GetValue(property.enumValueIndex);
 
         /// <summary>
         /// Helper to get an enum name from a SerializedProperty
         /// </summary>
-        public static T GetEnumName<T>(this SerializedProperty property)
-            => (T)System.Enum.GetNames(typeof(T)).GetValue(property.enumValueIndex);
+        public static string GetEnumName<T>(this SerializedProperty property)
+            => property.hasMultipleDifferentValues
+            ? "MultipleDifferentValues"
+            : (string)System.Enum.GetNames(typeof(T)).GetValue(property.enumValueIndex);
+        
+        /// <summary>
+        /// Helper to set an enum value to a SerializedProperty
+        /// </summary>
+        public static void SetEnumValue<T>(this SerializedProperty property, T value)
+            => property.enumValueIndex = Array.IndexOf(System.Enum.GetValues(typeof(T)), value);
 
         /// <summary>
         /// Get the value of a <see cref="SerializedProperty"/>.
         ///
         /// This function will be inlined by the compiler.
+        /// Caution: The case of Enum is not handled here.
         /// </summary>
         /// <typeparam name="T">
         /// The type of the value to get.
@@ -318,8 +355,6 @@ namespace UnityEditor.Rendering.HighDefinition
                 return (T)(object)serializedProperty.intValue;
             if (typeof(T) == typeof(bool))
                 return (T)(object)serializedProperty.boolValue;
-            if (typeof(T) == typeof(int))
-                return (T)(object)serializedProperty.enumValueIndex;
             if (typeof(T) == typeof(BoundsInt))
                 return (T)(object)serializedProperty.boundsIntValue;
             if (typeof(T) == typeof(Bounds))
@@ -345,6 +380,7 @@ namespace UnityEditor.Rendering.HighDefinition
         /// Set the value of a <see cref="SerializedProperty"/>.
         ///
         /// This function will be inlined by the compiler.
+        /// Caution: The case of Enum is not handled here.
         /// </summary>
         /// <typeparam name="T">
         /// The type of the value to set.
@@ -390,11 +426,6 @@ namespace UnityEditor.Rendering.HighDefinition
             if (typeof(T) == typeof(bool))
             {
                 serializedProperty.boolValue = (bool)(object)value;
-                return;
-            }
-            if (typeof(T) == typeof(int))
-            {
-                serializedProperty.enumValueIndex = (int)(object)value;
                 return;
             }
             if (typeof(T) == typeof(BoundsInt))
