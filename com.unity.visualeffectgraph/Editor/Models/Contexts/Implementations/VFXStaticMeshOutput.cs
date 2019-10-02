@@ -60,6 +60,14 @@ namespace UnityEditor.VFX
             base.OnInvalidate(model, cause);
         }
 
+        public override void AddDependentAssets(HashSet<string> dependencies)
+        {
+            base.AddDependentAssets(dependencies);
+
+            if (shader != null)
+                dependencies.Add(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(shader)));
+        }
+
         protected override IEnumerable<VFXPropertyWithValue> inputProperties
         {
             get
