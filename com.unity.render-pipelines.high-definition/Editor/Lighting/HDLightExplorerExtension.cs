@@ -306,7 +306,7 @@ namespace UnityEditor.Rendering.HighDefinition
                         shadowResolution.@override = EditorGUI.IntField(r, shadowResolution.@override);
                     else
                     {
-                        var lightShape = SerializedHDLight.ResolveLightShape(lightDataPairing[light].hdAdditionalLightData.lightTypeExtent, light.type);
+                        var lightShape = lightDataPairing[light].hdAdditionalLightData.type;
                         var defaultValue = HDLightUI.ScalableSettings.ShadowResolution(lightShape, hdrp);
                         EditorGUI.LabelField(r, defaultValue[shadowResolution.level].ToString());
                     }

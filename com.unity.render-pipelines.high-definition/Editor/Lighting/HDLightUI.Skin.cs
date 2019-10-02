@@ -127,7 +127,7 @@ namespace UnityEditor.Rendering.HighDefinition
 
             public Styles()
             {
-                shapeNames = Enum.GetNames(typeof(HDLightUI.LightShape))
+                shapeNames = Enum.GetNames(typeof(UnityEngine.Rendering.HighDefinition.HDLightType))
                     .Select(x => new GUIContent(x))
                     .ToArray();
             }
