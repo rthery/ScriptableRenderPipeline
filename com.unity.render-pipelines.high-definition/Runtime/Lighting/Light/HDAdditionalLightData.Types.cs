@@ -198,7 +198,7 @@ namespace UnityEngine.Rendering.HighDefinition
                         // not supported directly. Convert now to equivalent:
                         legacyLight.type = LightType.Point;
                         m_PointlightHDType = PointLightHDType.Area;
-                        areaLightShape = AreaLightShape.Rectangle;
+                        m_AreaLightShape = AreaLightShape.Rectangle;
 
                         //sanitycheck on the baking mode first time we add additionalLightData
 #if UNITY_EDITOR
@@ -206,8 +206,6 @@ namespace UnityEngine.Rendering.HighDefinition
 #endif
                         return HDLightType.Area;
                     case LightType.Disc:
-                        areaLightShape = AreaLightShape.Disc;
-
                         //sanitycheck on the baking mode
 #if UNITY_EDITOR
                         legacyLight.lightmapBakeType = LightmapBakeType.Baked;
@@ -235,13 +233,7 @@ namespace UnityEngine.Rendering.HighDefinition
                             m_PointlightHDType = PointLightHDType.Punctual;
                             break;
                         case HDLightType.Area:
-                            if (areaLightShape == AreaLightShape.Disc)
-                                legacyLight.type = LightType.Disc;
-                            else
-                            {
-                                legacyLight.type = LightType.Point;
-                                m_PointlightHDType = PointLightHDType.Area;
-                            }
+                            SolveAreaShape();
                             break;
                         default:
                             Debug.Assert(false, $"Unknown {typeof(HDLightType).Name} {value}.");
@@ -285,12 +277,25 @@ namespace UnityEngine.Rendering.HighDefinition
                     return;
 
                 m_AreaLightShape = value;
+                if (type == HDLightType.Area)
+                    SolveAreaShape();
                 UpdateAllLightValues();
             }
         }
 
+        void SolveAreaShape()
+        {
+            if (areaLightShape == AreaLightShape.Disc)
+                legacyLight.type = LightType.Disc;
+            else
+            {
+                legacyLight.type = LightType.Point;
+                m_PointlightHDType = PointLightHDType.Area;
+            }
+        }
+
         /// <summary>
-        /// Set the type of the light ansd its shape.
+        /// Set the type of the light and its shape.
         /// Note: this will also change the unit of the light if the current one is not supported by the new light type.
         /// </summary>
         /// <param name="condensedType"></param>
