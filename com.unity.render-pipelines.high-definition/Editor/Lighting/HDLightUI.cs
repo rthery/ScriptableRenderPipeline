@@ -117,7 +117,7 @@ namespace UnityEditor.Rendering.HighDefinition
                 CED.Conditional((serialized, owner) =>
                     {
                         HDLightType type = serialized.type;
-                        return type != HDLightType.Area || type == HDLightType.Area && serialized.areaLightShape.GetEnumValue<AreaLightShape>() != AreaLightShape.Tube;
+                        return type != HDLightType.Area || type == HDLightType.Area && serialized.areaLightShape != AreaLightShape.Tube;
                     },
                     CED.AdvancedFoldoutGroup(s_Styles.shadowHeader, Expandable.Shadows, k_ExpandedState,
                         (serialized, owner) => GetAdvanced(AdvancedMode.Shadow, serialized, owner),
@@ -170,16 +170,18 @@ namespace UnityEditor.Rendering.HighDefinition
 
         static void DrawGeneralContent(SerializedHDLight serialized, Editor owner)
         {
-            EditorGUI.showMixedValue = serialized.haveMultipleTypeValue;
             EditorGUI.BeginChangeCheck();
-            HDLightType updatedLightType = (HDLightType)EditorGUILayout.Popup(s_Styles.shape, (int)serialized.type, s_Styles.shapeNames);
+            HDLightType lightType = serialized.type;
+            EditorGUI.showMixedValue = lightType == (HDLightType)(-1);
+            int index = Array.FindIndex((HDLightType[])Enum.GetValues(typeof(HDLightType)), x => x == lightType);
+            HDLightType updatedLightType = (HDLightType)EditorGUILayout.Popup(s_Styles.shape, index, s_Styles.shapeNames);
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObjects(serialized.serializedObject.targetObjects, "Changed Light Type");
                 
                 if (updatedLightType == HDLightType.Area)
                 {
-                    switch (serialized.areaLightShape.GetEnumValue<AreaLightShape>())
+                    switch (serialized.areaLightShape)
                     {
                         case AreaLightShape.Rectangle:
                             serialized.shapeWidth.floatValue = Mathf.Max(serialized.shapeWidth.floatValue, k_MinLightSize);
@@ -190,7 +192,7 @@ namespace UnityEditor.Rendering.HighDefinition
                             serialized.shapeWidth.floatValue = Mathf.Max(serialized.shapeWidth.floatValue, k_MinLightSize);
                             break;
                         case AreaLightShape.Disc:
-                            //[TODO: check if needed to resize something]
+                            //nothing to do
                             break;
                         case (AreaLightShape)(-1):
                             // don't do anything, this is just to handle multi selection
@@ -207,7 +209,23 @@ namespace UnityEditor.Rendering.HighDefinition
             }
             EditorGUI.showMixedValue = false;
 
+            //Draw the mode
             serialized.settings.DrawLightmapping();
+
+            if (updatedLightType == HDLightType.Area)
+            {
+                switch (serialized.areaLightShape)
+                {
+                    case AreaLightShape.Tube:
+                        if (serialized.settings.isBakedOrMixed)
+                            EditorGUILayout.HelpBox("Tube Area Lights are realtime only.", MessageType.Error);
+                        break;
+                    case AreaLightShape.Disc:
+                        if (!serialized.settings.isCompletelyBaked)
+                            EditorGUILayout.HelpBox("Disc Area Lights are baked only.", MessageType.Error);
+                        break;
+                }
+            }
         }
 
         static void DrawGeneralAdvancedContent(SerializedHDLight serialized, Editor owner)
@@ -313,7 +331,19 @@ namespace UnityEditor.Rendering.HighDefinition
                     break;
 
                 case HDLightType.Area:
-                    switch (serialized.areaLightShape.GetEnumValue<AreaLightShape>())
+                    EditorGUI.BeginChangeCheck();
+                    AreaLightShape areaLightShape = serialized.areaLightShape;
+                    EditorGUI.showMixedValue = areaLightShape == (AreaLightShape)(-1);
+                    int index = Array.FindIndex((AreaLightShape[])Enum.GetValues(typeof(AreaLightShape)), x => x == areaLightShape);
+                    AreaLightShape updatedAreaLightShape = (AreaLightShape)EditorGUILayout.Popup(s_Styles.areaLightShape, index, s_Styles.areaShapeNames);
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        serialized.areaLightShape = updatedAreaLightShape;
+                        UpdateLightIntensityUnit(serialized, owner);
+                    }
+                    EditorGUI.showMixedValue = false;
+
+                    switch (updatedAreaLightShape)
                     {
                         case AreaLightShape.Rectangle:
                             EditorGUI.BeginChangeCheck();
@@ -334,6 +364,10 @@ namespace UnityEditor.Rendering.HighDefinition
                                 serialized.settings.areaSizeX.floatValue = serialized.shapeWidth.floatValue;
                                 serialized.settings.areaSizeY.floatValue = k_MinLightSize;
                             }
+                            break;
+                        case AreaLightShape.Disc:
+                            //draw the built-in area light control at the moment as everything is handled by built-in
+                            serialized.settings.DrawArea();
                             break;
                         case (AreaLightShape)(-1): //multiple different values
                             using (new EditorGUI.DisabledScope(true))
@@ -485,17 +519,17 @@ namespace UnityEditor.Rendering.HighDefinition
 
                 case HDLightType.Area:
                     if (oldLightUnit == LightUnit.Lumen && newLightUnit == LightUnit.Luminance)
-                        intensity = LightUtils.ConvertAreaLightLumenToLuminance(serialized.areaLightShape.GetEnumValue<AreaLightShape>(), intensity, serialized.shapeWidth.floatValue, serialized.shapeHeight.floatValue);
+                        intensity = LightUtils.ConvertAreaLightLumenToLuminance(serialized.areaLightShape, intensity, serialized.shapeWidth.floatValue, serialized.shapeHeight.floatValue);
                     if (oldLightUnit == LightUnit.Luminance && newLightUnit == LightUnit.Lumen)
-                        intensity = LightUtils.ConvertAreaLightLuminanceToLumen(serialized.areaLightShape.GetEnumValue<AreaLightShape>(), intensity, serialized.shapeWidth.floatValue, serialized.shapeHeight.floatValue);
+                        intensity = LightUtils.ConvertAreaLightLuminanceToLumen(serialized.areaLightShape, intensity, serialized.shapeWidth.floatValue, serialized.shapeHeight.floatValue);
                     if (oldLightUnit == LightUnit.Luminance && newLightUnit == LightUnit.Ev100)
                         intensity = LightUtils.ConvertLuminanceToEv(intensity);
                     if (oldLightUnit == LightUnit.Ev100 && newLightUnit == LightUnit.Luminance)
                         intensity = LightUtils.ConvertEvToLuminance(intensity);
                     if (oldLightUnit == LightUnit.Ev100 && newLightUnit == LightUnit.Lumen)
-                        intensity = LightUtils.ConvertAreaLightEvToLumen(serialized.areaLightShape.GetEnumValue<AreaLightShape>(), intensity, serialized.shapeWidth.floatValue, serialized.shapeHeight.floatValue);
+                        intensity = LightUtils.ConvertAreaLightEvToLumen(serialized.areaLightShape, intensity, serialized.shapeWidth.floatValue, serialized.shapeHeight.floatValue);
                     if (oldLightUnit == LightUnit.Lumen && newLightUnit == LightUnit.Ev100)
-                        intensity = LightUtils.ConvertAreaLightLumenToEv(serialized.areaLightShape.GetEnumValue<AreaLightShape>(), intensity, serialized.shapeWidth.floatValue, serialized.shapeHeight.floatValue);
+                        intensity = LightUtils.ConvertAreaLightLumenToEv(serialized.areaLightShape, intensity, serialized.shapeWidth.floatValue, serialized.shapeHeight.floatValue);
                     break;
 
                 default:
@@ -599,7 +633,7 @@ namespace UnityEditor.Rendering.HighDefinition
                     EditorGUI.indentLevel--;
                 }
             }
-            else if (serialized.areaLightShape.GetEnumValue<AreaLightShape>() == AreaLightShape.Rectangle)
+            else if (serialized.areaLightShape == AreaLightShape.Rectangle)
             {
                 EditorGUILayout.ObjectField( serialized.areaLightCookie, s_Styles.areaLightCookie );
             }
@@ -715,7 +749,7 @@ namespace UnityEditor.Rendering.HighDefinition
                         EditorGUI.showMixedValue = false;
                     }
                 }
-                if (lightType == HDLightType.Area && serialized.areaLightShape.GetEnumValue<AreaLightShape>() == AreaLightShape.Rectangle)
+                if (lightType == HDLightType.Area && serialized.areaLightShape == AreaLightShape.Rectangle)
                 {
                     EditorGUILayout.Slider(serialized.areaLightShadowCone, HDAdditionalLightData.k_MinAreaLightShadowCone, HDAdditionalLightData.k_MaxAreaLightShadowCone, s_Styles.areaLightShadowCone);
                 }
@@ -771,7 +805,7 @@ namespace UnityEditor.Rendering.HighDefinition
             {
                 HDLightType lightType = serialized.type;
 
-                if (lightType == HDLightType.Area && serialized.areaLightShape.GetEnumValue<AreaLightShape>() == AreaLightShape.Rectangle)
+                if (lightType == HDLightType.Area && serialized.areaLightShape == AreaLightShape.Rectangle)
                 {
                     EditorGUILayout.Slider(serialized.evsmExponent, HDAdditionalLightData.k_MinEvsmExponent, HDAdditionalLightData.k_MaxEvsmExponent, s_Styles.evsmExponent);
                     EditorGUILayout.Slider(serialized.evsmLightLeakBias, HDAdditionalLightData.k_MinEvsmLightLeakBias, HDAdditionalLightData.k_MaxEvsmLightLeakBias, s_Styles.evsmLightLeakBias);

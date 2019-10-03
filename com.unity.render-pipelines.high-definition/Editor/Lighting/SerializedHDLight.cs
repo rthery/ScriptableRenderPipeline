@@ -16,7 +16,6 @@ namespace UnityEditor.Rendering.HighDefinition
         public SerializedProperty affectSpecular;
         public SerializedProperty nonLightmappedOnly;
         public SerializedProperty spotLightShape;
-        public SerializedProperty areaLightShape;
         public SerializedProperty shapeWidth;
         public SerializedProperty shapeHeight;
         public SerializedProperty aspectRatio;
@@ -97,13 +96,14 @@ namespace UnityEditor.Rendering.HighDefinition
                 : (serializedObject.targetObjects[0] as HDAdditionalLightData).type;
             set
             {
+                Undo.RecordObjects(serializedObject.targetObjects, "Change light type");
                 var objects = serializedObject.targetObjects;
                 for (int index = 0; index < objects.Length; ++index)
-                    (serializedObject.targetObjects[index] as HDAdditionalLightData).type = value;
+                    (objects[index] as HDAdditionalLightData).type = value;
             }
         }
 
-        public bool haveMultipleTypeValue
+        bool haveMultipleTypeValue
         {
             get
             {
@@ -111,6 +111,33 @@ namespace UnityEditor.Rendering.HighDefinition
                 HDLightType value = (objects[0] as HDAdditionalLightData).type;
                 for (int index = 1; index < objects.Length; ++index)
                     if (value != (objects[index] as HDAdditionalLightData).type)
+                        return true;
+                return false;
+            }
+        }
+        
+        //areaLightShape need to be accessed by its property to always report modification in the right way
+        public AreaLightShape areaLightShape
+        {
+            get => haveMultipleAreaLightShapeValue
+                ? (AreaLightShape)(-1) //as serialize property on enum when mixed value state happens
+                : (serializedObject.targetObjects[0] as HDAdditionalLightData).areaLightShape;
+            set
+            {
+                var objects = serializedObject.targetObjects;
+                for (int index = 0; index < objects.Length; ++index)
+                    (objects[index] as HDAdditionalLightData).areaLightShape = value;
+            }
+        }
+
+        bool haveMultipleAreaLightShapeValue
+        {
+            get
+            {
+                var objects = serializedObject.targetObjects;
+                AreaLightShape value = (objects[0] as HDAdditionalLightData).areaLightShape;
+                for (int index = 1; index < objects.Length; ++index)
+                    if (value != (objects[index] as HDAdditionalLightData).areaLightShape)
                         return true;
                 return false;
             }
@@ -136,7 +163,6 @@ namespace UnityEditor.Rendering.HighDefinition
                 affectSpecular = o.Find("m_AffectSpecular");
                 nonLightmappedOnly = o.Find("m_NonLightmappedOnly");
                 spotLightShape = o.Find("m_SpotLightShape");
-                areaLightShape = o.Find("m_AreaLightShape");
                 shapeWidth = o.Find("m_ShapeWidth");
                 shapeHeight = o.Find("m_ShapeHeight");
                 aspectRatio = o.Find("m_AspectRatio");
