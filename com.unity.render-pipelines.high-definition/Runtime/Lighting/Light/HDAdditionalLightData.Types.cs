@@ -11,17 +11,6 @@ using UnityEngine.Serialization;
 
 namespace UnityEngine.Rendering.HighDefinition
 {
-    //[TODO: Migrate]
-    // This enum extent the original LightType enum with new light type from HD
-    //public enum LightTypeExtent
-    //{
-    //    Punctual, // Fallback on LightShape type
-    //    Rectangle,
-    //    Tube,
-    //    // Sphere,
-    //    // Disc,
-    //};
-    
     /// <summary>Type of an HDRP Light</summary>
     public enum HDLightType
     {
@@ -171,8 +160,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
         [System.NonSerialized]
         static Dictionary<int, LightUnit[]> supportedLightTypeCache = new Dictionary<int, LightUnit[]>();
-
-        //[TODO: migrate all area shape to PointLightHDType.Area
+        
         [SerializeField, FormerlySerializedAs("lightTypeExtent"), FormerlySerializedAs("m_LightTypeExtent")]
         PointLightHDType m_PointlightHDType = PointLightHDType.Punctual;
 
