@@ -1605,6 +1605,10 @@ namespace UnityEngine.Rendering.HighDefinition
                 lightVolumeData.boxInvRange.Set(Mathf.Infinity, Mathf.Infinity, Mathf.Infinity);
                 lightVolumeData.featureFlags = (uint)LightFeatureFlags.Punctual;
             }
+            else if (gpuLightType == GPULightType.Disc)
+            {
+                //not supported at real time at the moment
+            }
             else
             {
                 Debug.Assert(false, "TODO: encountered an unknown GPULightType.");
@@ -1937,8 +1941,14 @@ namespace UnityEngine.Rendering.HighDefinition
                             lightVolumeType = LightVolumeType.Box;
                             break;
 
+                        case AreaLightShape.Disc:
+                            //not used in real-time at the moment anyway
+                            gpuLightType = GPULightType.Disc;
+                            lightVolumeType = LightVolumeType.Sphere;
+                            break;
+
                         default:
-                            Debug.Assert(false, "Encountered an unknown LightType.");
+                            Debug.Assert(false, "Encountered an unknown AreaLightShape.");
                             break;
                     }
                     break;
