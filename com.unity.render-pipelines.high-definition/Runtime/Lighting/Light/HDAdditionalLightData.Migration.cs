@@ -19,6 +19,7 @@ namespace UnityEngine.Rendering.HighDefinition
             ShadowLayer,
             _Unused02,
             ShadowResolution,
+            RemoveAdditionalShadowData,
             AreaLightShapeTypeLogicIsolation,
         }
 
@@ -109,6 +110,12 @@ namespace UnityEngine.Rendering.HighDefinition
                     data.shadowResolution.useOverride = !data.m_ObsoleteUseShadowQualitySettings;
                     data.useContactShadow.@override = data.m_ObsoleteContactShadows;
                 }),
+                MigrationStep.New(Version.RemoveAdditionalShadowData, (HDAdditionalLightData data) =>
+                {
+                    var shadow = data.GetComponent<AdditionalShadowData>();
+                    if (shadow != null)
+                        CoreUtils.Destroy(shadow);
+                }),
                 MigrationStep.New(Version.AreaLightShapeTypeLogicIsolation, (HDAdditionalLightData data) =>
                 {
                     // It is now mixed in an other Enum: PointLightHDType
@@ -150,11 +157,6 @@ namespace UnityEngine.Rendering.HighDefinition
         void Awake()
         {
             k_HDLightMigrationSteps.Migrate(this);
-#pragma warning disable 0618
-            var shadow = GetComponent<AdditionalShadowData>();
-            if (shadow != null)
-                CoreUtils.Destroy(shadow);
-#pragma warning restore 0618
         }
 
         #region Obsolete fields
