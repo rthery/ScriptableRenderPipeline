@@ -1953,6 +1953,9 @@ namespace UnityEngine.Rendering.HighDefinition
 
         void OnValidate()
         {
+            //can be called before Awake() at script loading time in Editor
+            Migrate();
+
             UpdateBounds();
             DisableCachedShadowSlot();
             m_ShadowMapRenderedSinceLastRequest = false;

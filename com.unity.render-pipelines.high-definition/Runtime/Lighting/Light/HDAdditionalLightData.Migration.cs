@@ -154,10 +154,14 @@ namespace UnityEngine.Rendering.HighDefinition
             SetEmissiveMeshRendererEnabled(true);
         }
 
-        void Awake()
-        {
-            k_HDLightMigrationSteps.Migrate(this);
-        }
+        //Migration function called in:
+        // - OnValidate()
+        // - Awake()
+        // both function are called at instance
+        void Migrate()
+            => k_HDLightMigrationSteps.Migrate(this);
+
+        void Awake() => Migrate();
 
         #region Obsolete fields
         // To be able to have correct default values for our lights and to also control the conversion of intensity from the light editor (so it is compatible with GI)
