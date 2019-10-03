@@ -232,30 +232,39 @@ namespace UnityEngine.Rendering.HighDefinition
             }
             set
             {
-                switch (value)
+                if (type != value)
                 {
-                    case HDLightType.Directional:
-                        legacyLight.type = LightType.Directional;
-                        break;
-                    case HDLightType.Spot:
-                        legacyLight.type = LightType.Spot;
-                        break;
-                    case HDLightType.Point:
-                        legacyLight.type = LightType.Point;
-                        m_PointlightHDType = PointLightHDType.Punctual;
-                        break;
-                    case HDLightType.Area:
-                        if (areaLightShape == AreaLightShape.Disc)
-                            legacyLight.type = LightType.Disc;
-                        else
-                        {
+                    switch (value)
+                    {
+                        case HDLightType.Directional:
+                            legacyLight.type = LightType.Directional;
+                            break;
+                        case HDLightType.Spot:
+                            legacyLight.type = LightType.Spot;
+                            break;
+                        case HDLightType.Point:
                             legacyLight.type = LightType.Point;
-                            m_PointlightHDType = PointLightHDType.Area;
-                        }
-                        break;
-                    default:
-                        Debug.Assert(false, $"Unknown {typeof(HDLightType).Name} {value}.");
-                        break;
+                            m_PointlightHDType = PointLightHDType.Punctual;
+                            break;
+                        case HDLightType.Area:
+                            if (areaLightShape == AreaLightShape.Disc)
+                                legacyLight.type = LightType.Disc;
+                            else
+                            {
+                                legacyLight.type = LightType.Point;
+                                m_PointlightHDType = PointLightHDType.Area;
+                            }
+                            break;
+                        default:
+                            Debug.Assert(false, $"Unknown {typeof(HDLightType).Name} {value}.");
+                            break;
+                    }
+
+                    // If the current light unit is not supported by the new light type, we change it
+                    var supportedUnits = GetSupportedLightUnits(value, m_SpotLightShape);
+                    if (!supportedUnits.Any(u => u == lightUnit))
+                        lightUnit = supportedUnits.First();
+                    UpdateAllLightValues();
                 }
             }
         }
