@@ -306,9 +306,8 @@ namespace UnityEditor.Rendering.HighDefinition
         /// </example>
         /// </summary>
         public static T GetEnumValue<T>(this SerializedProperty property)
-            => property.hasMultipleDifferentValues
-            ? (T)(object)(-1)
-            : (T)System.Enum.GetValues(typeof(T)).GetValue(property.enumValueIndex);
+            // intValue actually is the value underlying beside the enum
+            => (T)(object)property.intValue;
 
         /// <summary>
         /// Helper to get an enum name from a SerializedProperty
@@ -316,13 +315,14 @@ namespace UnityEditor.Rendering.HighDefinition
         public static string GetEnumName<T>(this SerializedProperty property)
             => property.hasMultipleDifferentValues
             ? "MultipleDifferentValues"
-            : (string)System.Enum.GetNames(typeof(T)).GetValue(property.enumValueIndex);
-        
+            : property.enumNames[property.enumValueIndex];
+
         /// <summary>
         /// Helper to set an enum value to a SerializedProperty
         /// </summary>
         public static void SetEnumValue<T>(this SerializedProperty property, T value)
-            => property.enumValueIndex = Array.IndexOf(System.Enum.GetValues(typeof(T)), value);
+            // intValue actually is the value underlying beside the enum
+            => property.intValue = (int)(object)value;
 
         /// <summary>
         /// Get the value of a <see cref="SerializedProperty"/>.
@@ -373,6 +373,8 @@ namespace UnityEditor.Rendering.HighDefinition
                 return (T)(object)serializedProperty.vector3Value;
             if (typeof(T) == typeof(Vector2))
                 return (T)(object)serializedProperty.vector2Value;
+            if (typeof(T).IsEnum)
+                return serializedProperty.GetEnumValue<T>();
             throw new ArgumentOutOfRangeException($"<{typeof(T)}> is not a valid type for a serialized property.");
         }
 
@@ -471,6 +473,11 @@ namespace UnityEditor.Rendering.HighDefinition
             if (typeof(T) == typeof(Vector2))
             {
                 serializedProperty.vector2Value = (Vector2)(object)value;
+                return;
+            }
+            if (typeof(T).IsEnum)
+            { 
+                serializedProperty.SetEnumValue(value);
                 return;
             }
             throw new ArgumentOutOfRangeException($"<{typeof(T)}> is not a valid type for a serialized property.");
