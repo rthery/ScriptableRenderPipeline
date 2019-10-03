@@ -305,6 +305,7 @@ namespace UnityEditor.Rendering.HighDefinition
         /// </code>
         /// </example>
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetEnumValue<T>(this SerializedProperty property)
             // intValue actually is the value underlying beside the enum
             => (T)(object)property.intValue;
@@ -312,6 +313,7 @@ namespace UnityEditor.Rendering.HighDefinition
         /// <summary>
         /// Helper to get an enum name from a SerializedProperty
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string GetEnumName<T>(this SerializedProperty property)
             => property.hasMultipleDifferentValues
             ? "MultipleDifferentValues"
@@ -320,6 +322,7 @@ namespace UnityEditor.Rendering.HighDefinition
         /// <summary>
         /// Helper to set an enum value to a SerializedProperty
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetEnumValue<T>(this SerializedProperty property, T value)
             // intValue actually is the value underlying beside the enum
             => property.intValue = (int)(object)value;
