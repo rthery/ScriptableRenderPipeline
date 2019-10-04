@@ -96,8 +96,8 @@ namespace UnityEditor.Rendering.HighDefinition
                 : (serializedObject.targetObjects[0] as HDAdditionalLightData).type;
             set
             {
-                Undo.RecordObjects(serializedObject.targetObjects, "Change light type");
                 var objects = serializedObject.targetObjects;
+                Undo.RecordObjects(objects, "Change light type");
                 for (int index = 0; index < objects.Length; ++index)
                     (objects[index] as HDAdditionalLightData).type = value;
             }
@@ -125,6 +125,7 @@ namespace UnityEditor.Rendering.HighDefinition
             set
             {
                 var objects = serializedObject.targetObjects;
+                Undo.RecordObjects(objects, "Change light area shape");
                 for (int index = 0; index < objects.Length; ++index)
                     (objects[index] as HDAdditionalLightData).areaLightShape = value;
             }
