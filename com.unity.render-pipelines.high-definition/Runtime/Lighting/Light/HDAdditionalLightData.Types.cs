@@ -95,7 +95,7 @@ namespace UnityEngine.Rendering.HighDefinition
     /// <summary>
     /// Type of an HDRP Light including shape
     /// </summary>
-    public enum HDCondensedLightType
+    public enum HDLightTypeAndShape
     {
         Point,
         BoxSpot,
@@ -116,36 +116,36 @@ namespace UnityEngine.Rendering.HighDefinition
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static bool IsSpot(this HDCondensedLightType type)
-            => type == HDCondensedLightType.BoxSpot
-            || type == HDCondensedLightType.PyramidSpot
-            || type == HDCondensedLightType.ConeSpot;
+        public static bool IsSpot(this HDLightTypeAndShape type)
+            => type == HDLightTypeAndShape.BoxSpot
+            || type == HDLightTypeAndShape.PyramidSpot
+            || type == HDLightTypeAndShape.ConeSpot;
 
         /// <summary>
         /// Returns true if the hd light type is an area light
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static bool IsArea(this HDCondensedLightType type)
-            => type == HDCondensedLightType.TubeArea
-            || type == HDCondensedLightType.RectangleArea
-            || type == HDCondensedLightType.DiscArea;
+        public static bool IsArea(this HDLightTypeAndShape type)
+            => type == HDLightTypeAndShape.TubeArea
+            || type == HDLightTypeAndShape.RectangleArea
+            || type == HDLightTypeAndShape.DiscArea;
 
         /// <summary>
         /// Returns true if the hd light type can be used for runtime lighting
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static bool IsRuntime(this HDCondensedLightType type)
-            => type != HDCondensedLightType.DiscArea;
+        public static bool IsRuntime(this HDLightTypeAndShape type)
+            => type != HDLightTypeAndShape.DiscArea;
 
         /// <summary>
         /// Returns true if the hd light type can be used for baking
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static bool IsBakeable(this HDCondensedLightType type)
-            => type != HDCondensedLightType.TubeArea;
+        public static bool IsBakeable(this HDLightTypeAndShape type)
+            => type != HDLightTypeAndShape.TubeArea;
     }
     
     public partial class HDAdditionalLightData
@@ -299,37 +299,37 @@ namespace UnityEngine.Rendering.HighDefinition
         /// Note: this will also change the unit of the light if the current one is not supported by the new light type.
         /// </summary>
         /// <param name="condensedType"></param>
-        public void SetLightType(HDCondensedLightType condensedType)
+        public void SetLightType(HDLightTypeAndShape condensedType)
         {
             switch (condensedType)
             {
-                case HDCondensedLightType.Point:
+                case HDLightTypeAndShape.Point:
                     type = HDLightType.Point;
                     break;
-                case HDCondensedLightType.Directional:
+                case HDLightTypeAndShape.Directional:
                     type = HDLightType.Directional;
                     break;
-                case HDCondensedLightType.ConeSpot:
+                case HDLightTypeAndShape.ConeSpot:
                     type = HDLightType.Spot;
                     spotLightShape = SpotLightShape.Cone;
                     break;
-                case HDCondensedLightType.PyramidSpot:
+                case HDLightTypeAndShape.PyramidSpot:
                     type = HDLightType.Spot;
                     spotLightShape = SpotLightShape.Pyramid;
                     break;
-                case HDCondensedLightType.BoxSpot:
+                case HDLightTypeAndShape.BoxSpot:
                     type = HDLightType.Spot;
                     spotLightShape = SpotLightShape.Box;
                     break;
-                case HDCondensedLightType.RectangleArea:
+                case HDLightTypeAndShape.RectangleArea:
                     type = HDLightType.Area;
                     areaLightShape = AreaLightShape.Rectangle;
                     break;
-                case HDCondensedLightType.TubeArea:
+                case HDLightTypeAndShape.TubeArea:
                     type = HDLightType.Area;
                     areaLightShape = AreaLightShape.Tube;
                     break;
-                case HDCondensedLightType.DiscArea:
+                case HDLightTypeAndShape.DiscArea:
                     type = HDLightType.Area;
                     areaLightShape = AreaLightShape.Disc;
                     break;
@@ -340,26 +340,26 @@ namespace UnityEngine.Rendering.HighDefinition
         /// Get the HD condensed light type and its shape.
         /// </summary>
         /// <returns></returns>
-        public HDCondensedLightType GetLightType()
+        public HDLightTypeAndShape GetLightType()
         {
             switch (type)
             {
-                case HDLightType.Directional:   return HDCondensedLightType.Directional;
-                case HDLightType.Point:         return HDCondensedLightType.Point;
+                case HDLightType.Directional:   return HDLightTypeAndShape.Directional;
+                case HDLightType.Point:         return HDLightTypeAndShape.Point;
                 case HDLightType.Spot:
                     switch (spotLightShape)
                     {
-                        case SpotLightShape.Cone: return HDCondensedLightType.ConeSpot;
-                        case SpotLightShape.Box: return HDCondensedLightType.BoxSpot;
-                        case SpotLightShape.Pyramid: return HDCondensedLightType.PyramidSpot;
+                        case SpotLightShape.Cone: return HDLightTypeAndShape.ConeSpot;
+                        case SpotLightShape.Box: return HDLightTypeAndShape.BoxSpot;
+                        case SpotLightShape.Pyramid: return HDLightTypeAndShape.PyramidSpot;
                         default: throw new Exception($"Unknown {typeof(SpotLightShape)}: {spotLightShape}");
                     }
                 case HDLightType.Area:
                     switch (areaLightShape)
                     {
-                        case AreaLightShape.Rectangle: return HDCondensedLightType.RectangleArea;
-                        case AreaLightShape.Tube: return HDCondensedLightType.TubeArea;
-                        case AreaLightShape.Disc: return HDCondensedLightType.DiscArea;
+                        case AreaLightShape.Rectangle: return HDLightTypeAndShape.RectangleArea;
+                        case AreaLightShape.Tube: return HDLightTypeAndShape.TubeArea;
+                        case AreaLightShape.Disc: return HDLightTypeAndShape.DiscArea;
                         default: throw new Exception($"Unknown {typeof(AreaLightShape)}: {areaLightShape}");
                     }
                 default: throw new Exception($"Unknown {typeof(HDLightType)}: {type}");
