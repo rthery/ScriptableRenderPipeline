@@ -7,7 +7,7 @@ using UnityEngine.Rendering.HighDefinition;
 public class LightScriptCreator : MonoBehaviour
 {
     public int          gridWidth = 13;
-    public int          gridHeight = 8;
+    public int          gridHeight = 7;
 
     [Space, Header("Resources")]
     public Texture2D    cookie2D;
