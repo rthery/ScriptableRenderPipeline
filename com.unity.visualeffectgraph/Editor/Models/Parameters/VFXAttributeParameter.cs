@@ -9,13 +9,13 @@ namespace UnityEditor.VFX
     {
         public string[] GetAvailableString()
         {
-            return VFXAttribute.AllIncludingVariadicExceptLocalOnly.ToArray();
+            return VFXAttribute.AllIncludingVariadicExceptWriteOnly.ToArray();
         }
     }
 
     class ReadWritableAttributeProvider : IStringProvider
     {
-        public string[] GetAvailableString()
+        public string[] GetAvailableString() 
         {
             return VFXAttribute.AllIncludingVariadicReadWritable.ToArray();
         }
@@ -29,7 +29,7 @@ namespace UnityEditor.VFX
             {
                 return new Dictionary<string, object[]>
                 {
-                    { "attribute", VFXAttribute.AllIncludingVariadicExceptLocalOnly.Cast<object>().ToArray() }
+                    { "attribute", VFXAttribute.AllIncludingVariadicExceptWriteOnly.Cast<object>().ToArray() }
                 };
             }
         }
@@ -67,7 +67,7 @@ namespace UnityEditor.VFX
     class VFXAttributeParameter : VFXOperator
     {
         [VFXSetting(VFXSettingAttribute.VisibleFlags.InInspector), StringProvider(typeof(AttributeProvider)), Tooltip("Specifies which attribute to use.")]
-        public string attribute = VFXAttribute.AllIncludingVariadic.First();
+        public string attribute = VFXAttribute.AllIncludingVariadicExceptWriteOnly.First();
 
         [VFXSetting, Tooltip("Specifies which version of the parameter to use. It can return the current value, or the source value derived from a GPU event or a spawn attribute.")]
         public VFXAttributeLocation location = VFXAttributeLocation.Current;
