@@ -755,37 +755,38 @@ namespace UnityEditor.Rendering.HighDefinition
                 }
 
 #if ENABLE_RAYTRACING
-                var spotLightShape = (SpotLightShape)serialized.serializedLightData.spotLightShape.enumValueIndex;
-                if (LightShape.Rectangle == serialized.editorLightShape || LightShape.Point == serialized.editorLightShape || (LightShape.Spot == serialized.editorLightShape && SpotLightShape.Cone == spotLightShape))
+                if (lightType == HDLightType.Point
+                    || (lightType == HDLightType.Spot && serialized.spotLightShape.GetEnumValue<SpotLightShape>() == SpotLightShape.Cone)
+                    || (lightType == HDLightType.Area && serialized.areaLightShape == AreaLightShape.Rectangle))
                 {
-                    EditorGUILayout.PropertyField(serialized.serializedLightData.useRayTracedShadows, s_Styles.useRayTracedShadows);
-                    if(serialized.serializedLightData.useRayTracedShadows.boolValue)
+                    EditorGUILayout.PropertyField(serialized.useRayTracedShadows, s_Styles.useRayTracedShadows);
+                    if(serialized.useRayTracedShadows.boolValue)
                     {
                         EditorGUI.indentLevel++;
-                        EditorGUILayout.PropertyField(serialized.serializedLightData.numRayTracingSamples, s_Styles.numRayTracingSamples);
-                        EditorGUILayout.PropertyField(serialized.serializedLightData.filterTracedShadow, s_Styles.denoiseTracedShadow);
-                        EditorGUILayout.PropertyField(serialized.serializedLightData.filterSizeTraced, s_Styles.denoiserRadius);
+                        EditorGUILayout.PropertyField(serialized.numRayTracingSamples, s_Styles.numRayTracingSamples);
+                        EditorGUILayout.PropertyField(serialized.filterTracedShadow, s_Styles.denoiseTracedShadow);
+                        EditorGUILayout.PropertyField(serialized.filterSizeTraced, s_Styles.denoiserRadius);
                         EditorGUI.indentLevel--;
                     }
                 }
                 
                 // For the moment, we only support screen space rasterized shadows for directional lights
-                if (serialized.settings.lightType.enumValueIndex == (int)LightType.Directional)
+                if (lightType == HDLightType.Directional)
                 {
-                    EditorGUILayout.PropertyField(serialized.serializedLightData.useScreenSpaceShadows, s_Styles.useScreenSpaceShadows);
-                    using (new EditorGUI.DisabledScope(!serialized.serializedLightData.useScreenSpaceShadows.boolValue))
+                    EditorGUILayout.PropertyField(serialized.useScreenSpaceShadows, s_Styles.useScreenSpaceShadows);
+                    using (new EditorGUI.DisabledScope(!serialized.useScreenSpaceShadows.boolValue))
                     {
                         EditorGUI.indentLevel++;
-                        EditorGUILayout.PropertyField(serialized.serializedLightData.useRayTracedShadows, s_Styles.useRayTracedShadows);
-                        using (new EditorGUI.DisabledScope(!serialized.serializedLightData.useRayTracedShadows.boolValue))
+                        EditorGUILayout.PropertyField(serialized.useRayTracedShadows, s_Styles.useRayTracedShadows);
+                        using (new EditorGUI.DisabledScope(!serialized.useRayTracedShadows.boolValue))
                         {
                             EditorGUI.indentLevel++;
-                            EditorGUILayout.PropertyField(serialized.serializedLightData.numRayTracingSamples, s_Styles.numRayTracingSamples);
-                            EditorGUILayout.PropertyField(serialized.serializedLightData.filterTracedShadow, s_Styles.denoiseTracedShadow);
-                            using (new EditorGUI.DisabledScope(!serialized.serializedLightData.filterTracedShadow.boolValue))
+                            EditorGUILayout.PropertyField(serialized.numRayTracingSamples, s_Styles.numRayTracingSamples);
+                            EditorGUILayout.PropertyField(serialized.filterTracedShadow, s_Styles.denoiseTracedShadow);
+                            using (new EditorGUI.DisabledScope(!serialized.filterTracedShadow.boolValue))
                             {
                                 EditorGUI.indentLevel++;
-                                EditorGUILayout.PropertyField(serialized.serializedLightData.filterSizeTraced, s_Styles.denoiserRadius);
+                                EditorGUILayout.PropertyField(serialized.filterSizeTraced, s_Styles.denoiserRadius);
                                 EditorGUI.indentLevel--;
                             }
 

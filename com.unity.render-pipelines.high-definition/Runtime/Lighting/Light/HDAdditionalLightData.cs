@@ -1359,7 +1359,7 @@ namespace UnityEngine.Rendering.HighDefinition
             LightCategory lightCategory = LightCategory.Count;
             GPULightType gpuLightType = GPULightType.Point;
             LightVolumeType lightVolumeType = LightVolumeType.Count;
-            HDRenderPipeline.EvaluateGPULightType(legacyLight.type, lightTypeExtent, spotLightShape, ref lightCategory, ref gpuLightType, ref lightVolumeType);
+            HDRenderPipeline.EvaluateGPULightType(type, spotLightShape, areaLightShape, ref lightCategory, ref gpuLightType, ref lightVolumeType);
 
             // Flag the ray tracing only shadows
             if (m_UseRayTracedShadows && (gpuLightType == GPULightType.Rectangle || gpuLightType == GPULightType.Point || (gpuLightType == GPULightType.Spot && lightVolumeType == LightVolumeType.Cone)))
