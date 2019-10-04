@@ -1115,8 +1115,8 @@ namespace UnityEngine.Rendering.HighDefinition
 
                 if (newFrame)
                 {
-                    HDCamera.CleanUnused();
                     m_ProbeCameraCache.ClearCamerasUnusedFor(2, Time.frameCount);
+                    HDCamera.CleanUnused();
 
                     if (newTime > m_Time)
                         m_FrameCount++;
@@ -1447,6 +1447,12 @@ namespace UnityEngine.Rendering.HighDefinition
                     for (int j = 0; j < cameraSettings.Count; ++j)
                     {
                         var camera = m_ProbeCameraCache.GetOrCreate((viewerTransform, visibleProbe, j), Time.frameCount);
+                        var additionalCameraData = camera.GetComponent<HDAdditionalCameraData>();
+
+                        if (additionalCameraData == null)
+                            additionalCameraData = camera.gameObject.AddComponent<HDAdditionalCameraData>();
+                        additionalCameraData.hasPersistentHistory = true;
+
                         camera.targetTexture = visibleProbe.realtimeTexture; // We need to set a targetTexture with the right otherwise when setting pixelRect, it will be rescaled internally to the size of the screen
                         camera.gameObject.hideFlags = HideFlags.HideAndDontSave;
                         camera.gameObject.SetActive(false);
