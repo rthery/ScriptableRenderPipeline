@@ -152,7 +152,7 @@ namespace UnityEditor.Rendering.HighDefinition
                             }
                             break;
                         case AreaLightShape.Disc:
-                            //[TODO: do the disc gizmo or use the legacy one]
+                            //use legacy handles for this case
                             break;
                     }
                     break;
