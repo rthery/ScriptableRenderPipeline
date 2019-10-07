@@ -26,7 +26,7 @@ namespace UnityEngine.Rendering.HighDefinition.Tests
             Area
         }
 
-        public class LightTypeDatas
+        public class LightTypeDatas : TestCaseData
         {
             public LightType builtinLightType;
             public PointTrueHDType pointHDType;
@@ -36,80 +36,32 @@ namespace UnityEngine.Rendering.HighDefinition.Tests
             public HDLightTypeAndShape correspondingLightAndShape;
         }
 
-        static object[] s_LightTypeDatas =
+        static TestCaseData[] s_LightTypeDatas =
         {
-            new LightTypeDatas
-            {
-                builtinLightType = LightType.Directional,
-                pointHDType =  PointTrueHDType.Punctual,
-                spotLightShape = SpotLightShape.Cone,
-                areaLightShape = AreaLightShape.Rectangle,
-                correspondingType = HDLightType.Directional,
-                correspondingLightAndShape = HDLightTypeAndShape.Directional,
-            },
-            new LightTypeDatas
-            {
-                builtinLightType = LightType.Point,
-                pointHDType =  PointTrueHDType.Punctual,
-                spotLightShape = SpotLightShape.Cone,
-                areaLightShape = AreaLightShape.Rectangle,
-                correspondingType = HDLightType.Point,
-                correspondingLightAndShape = HDLightTypeAndShape.Point,
-            },
-            new LightTypeDatas
-            {
-                builtinLightType = LightType.Spot,
-                pointHDType =  PointTrueHDType.Punctual,
-                spotLightShape = SpotLightShape.Cone,
-                areaLightShape = AreaLightShape.Rectangle,
-                correspondingType = HDLightType.Spot,
-                correspondingLightAndShape = HDLightTypeAndShape.ConeSpot,
-            },
-            new LightTypeDatas
-            {
-                builtinLightType = LightType.Spot,
-                pointHDType =  PointTrueHDType.Punctual,
-                spotLightShape = SpotLightShape.Box,
-                areaLightShape = AreaLightShape.Rectangle,
-                correspondingType = HDLightType.Spot,
-                correspondingLightAndShape = HDLightTypeAndShape.BoxSpot,
-            },
-            new LightTypeDatas
-            {
-                builtinLightType = LightType.Spot,
-                pointHDType =  PointTrueHDType.Punctual,
-                spotLightShape = SpotLightShape.Pyramid,
-                areaLightShape = AreaLightShape.Rectangle,
-                correspondingType = HDLightType.Spot,
-                correspondingLightAndShape = HDLightTypeAndShape.PyramidSpot,
-            },
-            new LightTypeDatas
-            {
-                builtinLightType = LightType.Point,
-                pointHDType =  PointTrueHDType.Area,
-                spotLightShape = SpotLightShape.Cone,
-                areaLightShape = AreaLightShape.Rectangle,
-                correspondingType = HDLightType.Area,
-                correspondingLightAndShape = HDLightTypeAndShape.RectangleArea,
-            },
-            new LightTypeDatas
-            {
-                builtinLightType = LightType.Point,
-                pointHDType =  PointTrueHDType.Area,
-                spotLightShape = SpotLightShape.Cone,
-                areaLightShape = AreaLightShape.Tube,
-                correspondingType = HDLightType.Area,
-                correspondingLightAndShape = HDLightTypeAndShape.TubeArea,
-            },
-            new LightTypeDatas
-            {
-                builtinLightType = LightType.Disc,
-                pointHDType =  PointTrueHDType.Area,
-                spotLightShape = SpotLightShape.Cone,
-                areaLightShape = AreaLightShape.Disc,
-                correspondingType = HDLightType.Area,
-                correspondingLightAndShape = HDLightTypeAndShape.DiscArea,
-            }
+            new TestCaseData(LightType.Directional, PointTrueHDType.Punctual, SpotLightShape.Cone, AreaLightShape.Rectangle)
+                .Returns((HDLightType.Directional, HDLightTypeAndShape.Directional))
+                .SetName("Directional"),
+            new TestCaseData(LightType.Point, PointTrueHDType.Punctual, SpotLightShape.Cone, AreaLightShape.Rectangle)
+                .Returns((HDLightType.Point, HDLightTypeAndShape.Point))
+                .SetName("Point"),
+            new TestCaseData(LightType.Spot, PointTrueHDType.Punctual, SpotLightShape.Cone, AreaLightShape.Rectangle)
+                .Returns((HDLightType.Spot, HDLightTypeAndShape.ConeSpot))
+                .SetName("Spot with cone shape"),
+            new TestCaseData(LightType.Spot, PointTrueHDType.Punctual, SpotLightShape.Box, AreaLightShape.Rectangle)
+                .Returns((HDLightType.Spot, HDLightTypeAndShape.BoxSpot))
+                .SetName("Spot with box shape"),
+            new TestCaseData(LightType.Spot, PointTrueHDType.Punctual, SpotLightShape.Pyramid, AreaLightShape.Rectangle)
+                .Returns((HDLightType.Spot, HDLightTypeAndShape.PyramidSpot))
+                .SetName("Spot with pyramid shape"),
+            new TestCaseData(LightType.Point, PointTrueHDType.Area, SpotLightShape.Cone, AreaLightShape.Rectangle)
+                .Returns((HDLightType.Area, HDLightTypeAndShape.RectangleArea))
+                .SetName("Area with rectangle shape"),
+            new TestCaseData(LightType.Point, PointTrueHDType.Area, SpotLightShape.Cone, AreaLightShape.Tube)
+                .Returns((HDLightType.Area, HDLightTypeAndShape.TubeArea))
+                .SetName("Area with tube shape"),
+            new TestCaseData(LightType.Disc, PointTrueHDType.Area, SpotLightShape.Cone, AreaLightShape.Disc)
+                .Returns((HDLightType.Area, HDLightTypeAndShape.DiscArea))
+                .SetName("Area with disc shape"),
         };
 
 
@@ -135,17 +87,16 @@ namespace UnityEngine.Rendering.HighDefinition.Tests
         }
 
         [Test, TestCaseSource(nameof(s_LightTypeDatas))]
-        public void ComputedType(LightTypeDatas lightData)
+        public (HDLightType, HDLightTypeAndShape) ComputedType(LightType builtinLightType, PointTrueHDType pointHDType, SpotLightShape spotLightShape, AreaLightShape areaLightShape)
         {
-            builtinType.intValue = (int)lightData.builtinLightType;
-            pointHDType.intValue = (int)lightData.pointHDType;
-            spotLightShape.intValue = (int)lightData.spotLightShape;
-            areaLightShape.intValue = (int)lightData.areaLightShape;
+            builtinType.intValue = (int)builtinLightType;
+            this.pointHDType.intValue = (int)pointHDType;
+            this.spotLightShape.intValue = (int)spotLightShape;
+            this.areaLightShape.intValue = (int)areaLightShape;
             serializedLight.ApplyModifiedProperties();
             serializedAdditionalData.ApplyModifiedProperties();
 
-            Assert.AreEqual(m_AdditionalData.type, lightData.correspondingType, $"Wrongly recomputed type");
-            Assert.AreEqual(m_AdditionalData.GetLightTypeAndShape(), lightData.correspondingLightAndShape, $"Wrongly recomputed type and shape");
+            return (m_AdditionalData.type, m_AdditionalData.GetLightTypeAndShape());
         }
     }
 }
