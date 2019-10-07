@@ -1,5 +1,5 @@
 editors:
-  - version: 2019.2
+  - version: 20c1667945cf4cced4105cab90ff0bd47710b98f
 packages:
   - name: Core
     id: core
