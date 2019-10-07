@@ -246,6 +246,11 @@ namespace UnityEngine.Rendering.HighDefinition
                     return;
 
                 m_SpotLightShape = value;
+
+                // If the current light unit is not supported by this spot light shape, we change it
+                var supportedUnits = GetSupportedLightUnits(type, value);
+                if (!supportedUnits.Any(u => u == lightUnit))
+                    lightUnit = supportedUnits.First();
                 UpdateAllLightValues();
             }
         }
