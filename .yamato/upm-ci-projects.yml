@@ -1,5 +1,5 @@
 editors:
-  - version: trunk
+  - version: scripting/mono/staging
 projects:
   - name: Universal
     folder: UniversalGraphicsTest
