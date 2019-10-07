@@ -330,7 +330,7 @@ namespace UnityEngine.Rendering.HighDefinition
         /// Get the HD condensed light type and its shape.
         /// </summary>
         /// <returns></returns>
-        public HDLightTypeAndShape GetLightType()
+        public HDLightTypeAndShape GetLightTypeAndShape()
         {
             switch (type)
             {
@@ -358,7 +358,7 @@ namespace UnityEngine.Rendering.HighDefinition
         
         string GetLightTypeName()
         {
-            if (isAreaLight)
+            if (type == HDLightType.Area)
                 return $"{areaLightShape}AreaLight";
             else
             {
@@ -369,16 +369,13 @@ namespace UnityEngine.Rendering.HighDefinition
             }
         }
 
-        internal bool isAreaLight
-            => m_PointlightHDType == PointLightHDType.Area;
-
-        bool isPointLight
-            => legacyLight.type == LightType.Point
-            && m_PointlightHDType == PointLightHDType.Punctual;
-
-
-        //[TODO: remove argument if not used static]
-        LightUnit[] GetSupportedLightUnits(HDLightType type, SpotLightShape spotLightShape)
+        /// <summary>
+        /// Give the supported lights unit for the given parameters
+        /// </summary>
+        /// <param name="type">The type of the light</param>
+        /// <param name="spotLightShape">the shape of the spot.You can put anything in case it is not a spot light.</param>
+        /// <returns>Array of supported units</returns>
+        public static LightUnit[] GetSupportedLightUnits(HDLightType type, SpotLightShape spotLightShape)
         {
             LightUnit[] supportedTypes;
 
@@ -402,8 +399,14 @@ namespace UnityEngine.Rendering.HighDefinition
             return supportedTypes;
         }
 
-        //[TODO: remove argument if not used static]
-        bool IsValidLightUnitForType(HDLightType type, SpotLightShape spotLightShape, LightUnit unit)
+        /// <summary>
+        /// Check if the given type is supported by this type and shape.
+        /// </summary>
+        /// <param name="type">The type of the light</param>
+        /// <param name="spotLightShape">the shape of the spot.You can put anything in case it is not a spot light.</param>
+        /// <param name="unit">The unit to check</param>
+        /// <returns>True: this unit is supported</returns>
+        public static bool IsValidLightUnitForType(HDLightType type, SpotLightShape spotLightShape, LightUnit unit)
         {
             LightUnit[] allowedUnits = GetSupportedLightUnits(type, spotLightShape);
 

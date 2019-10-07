@@ -340,7 +340,7 @@ namespace UnityEngine.Rendering.HighDefinition
                 if (m_ShapeWidth == value)
                     return;
 
-                if (isAreaLight)
+                if (type == HDLightType.Area)
                     m_ShapeWidth = Mathf.Clamp(value, k_MinAreaWidth, float.MaxValue);
                 else
                     m_ShapeWidth = Mathf.Clamp(value, 0, float.MaxValue);
@@ -362,7 +362,7 @@ namespace UnityEngine.Rendering.HighDefinition
                 if (m_ShapeHeight == value)
                     return;
 
-                if (isAreaLight)
+                if (type == HDLightType.Area)
                     m_ShapeHeight = Mathf.Clamp(value, k_MinAreaWidth, float.MaxValue);
                 else
                     m_ShapeHeight = Mathf.Clamp(value, 0, float.MaxValue);
@@ -1247,7 +1247,7 @@ namespace UnityEngine.Rendering.HighDefinition
                 return m_Light;
             }
         }
-        
+
         MeshRenderer m_EmissiveMeshRenderer;
         internal MeshRenderer emissiveMeshRenderer
         {
@@ -1307,7 +1307,12 @@ namespace UnityEngine.Rendering.HighDefinition
 
         int GetShadowRequestCount()
         {
-            return isPointLight ? 6 : type == HDLightType.Directional ? m_ShadowSettings.cascadeShadowSplitCount.value : 1;
+            HDLightType lightType = type; 
+            return lightType == HDLightType.Point
+                ? 6
+                : lightType == HDLightType.Directional
+                    ? m_ShadowSettings.cascadeShadowSplitCount.value
+                    : 1;
         }
 
         internal void RequestShadowMapRendering()
@@ -2052,7 +2057,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
         internal void UpdateAreaLightEmissiveMesh()
         {
-            bool displayEmissiveMesh = isAreaLight && displayAreaLightEmissiveMesh;
+            bool displayEmissiveMesh = type == HDLightType.Area && displayAreaLightEmissiveMesh;
 
             // Ensure that the emissive mesh components are here
             if (displayEmissiveMesh)
@@ -2313,7 +2318,8 @@ namespace UnityEngine.Rendering.HighDefinition
         /// <param name="directionalLightCookieSize">area light </param>
         public void SetCookie(Texture cookie, Vector2 directionalLightCookieSize)
         {
-            if (isAreaLight)
+            HDLightType lightType = type;
+            if (lightType == HDLightType.Area)
             {
                 if (cookie.dimension != TextureDimension.Tex2D)
                 {
@@ -2324,7 +2330,6 @@ namespace UnityEngine.Rendering.HighDefinition
             }
             else
             {
-                HDLightType lightType = type;
                 if (lightType == HDLightType.Point && cookie.dimension != TextureDimension.Cube)
                 {
                     Debug.LogError("Texture dimension " + cookie.dimension + " is not supported for point lights.");
@@ -2505,7 +2510,7 @@ namespace UnityEngine.Rendering.HighDefinition
         /// <param name="size"></param>
         public void SetAreaLightSize(Vector2 size)
         {
-            if (isAreaLight)
+            if (type == HDLightType.Area)
             {
                 m_ShapeWidth = size.x;
                 m_ShapeHeight = size.y;
@@ -2556,7 +2561,7 @@ namespace UnityEngine.Rendering.HighDefinition
             => (byte)renderingLayerMask;
         
         ShadowMapType shadowMapType
-            => (isAreaLight && areaLightShape == AreaLightShape.Rectangle)
+            => (type == HDLightType.Area && areaLightShape == AreaLightShape.Rectangle)
             ? ShadowMapType.AreaLightAtlas
             : type != HDLightType.Directional
                 ? ShadowMapType.PunctualAtlas
