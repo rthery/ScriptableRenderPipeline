@@ -3,7 +3,6 @@ using System;
 namespace UnityEngine.Rendering
 {
     public class DynamicArray<T> where T: new()
-    //: IEnumerable<T>
     {
         T[] m_Array = null;
 
@@ -42,17 +41,6 @@ namespace UnityEngine.Rendering
             size++;
             return index;
         }
-
-        //IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        //{
-        //    return (m_Array as IEnumerable<T>).GetEnumerator();
-        //}
-
-        //IEnumerator IEnumerable.GetEnumerator()
-        //{
-        //    return m_Array.GetEnumerator();
-        //}
-
 
         public ref T this[int index]
         {
