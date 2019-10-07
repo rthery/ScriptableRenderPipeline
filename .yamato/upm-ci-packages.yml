@@ -1,5 +1,5 @@
 editors:
-  - version: 2019.3/staging
+  - version: 2019.3/graphics/vfx/fix/1180192-add-default-inspector
 packages:
   - name: Core
     id: core
