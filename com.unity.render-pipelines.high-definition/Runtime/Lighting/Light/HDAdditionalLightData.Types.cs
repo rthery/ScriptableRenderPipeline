@@ -171,7 +171,11 @@ namespace UnityEngine.Rendering.HighDefinition
         // Only for Spotlight, should be hide for other light
         [SerializeField]
         AreaLightShape m_AreaLightShape = AreaLightShape.Rectangle;
-        
+
+        //Not to be used in render loop instead as we can add on the fly an
+        //HDAdditionalLightData that is not really added to the GameObject
+        //In this case, use ComputeLightType directly.
+        //This is for scripting and case where the HDAdditionnalLightData is existing
         /// <summary>
         /// The type of light used.
         /// This handle some internal conversion in Light component for culling purpose.
@@ -182,19 +186,7 @@ namespace UnityEngine.Rendering.HighDefinition
             {
                 switch (legacyLight.type)
                 {
-                    case LightType.Spot:        return HDLightType.Spot;
-                    case LightType.Directional: return HDLightType.Directional;
-                    case LightType.Point:
-                        switch(m_PointlightHDType)
-                        {
-                            case PointLightHDType.Punctual: return HDLightType.Point;
-                            case PointLightHDType.Area:     return HDLightType.Area;
-                            default:
-                                Debug.Assert(false, $"Unknown {typeof(PointLightHDType).Name} {m_PointlightHDType}. Fallback on Punctual");
-                                return HDLightType.Point;
-                        }
-                    //case LightType.Area: <- same than LightType.Rectangle
-                    case LightType.Rectangle: 
+                    case LightType.Rectangle:
                         // not supported directly. Convert now to equivalent:
                         legacyLight.type = LightType.Point;
                         m_PointlightHDType = PointLightHDType.Area;
@@ -205,15 +197,8 @@ namespace UnityEngine.Rendering.HighDefinition
                         legacyLight.lightmapBakeType = LightmapBakeType.Realtime;
 #endif
                         return HDLightType.Area;
-                    case LightType.Disc:
-                        //sanitycheck on the baking mode
-#if UNITY_EDITOR
-                        legacyLight.lightmapBakeType = LightmapBakeType.Baked;
-#endif
-                        return HDLightType.Area;
                     default:
-                        Debug.Assert(false, $"Unknown {typeof(LightType).Name} {legacyLight.type}. Fallback on Point");
-                        return HDLightType.Point;
+                        return ComputeLightType(legacyLight);
                 }
             }
             set
@@ -286,7 +271,12 @@ namespace UnityEngine.Rendering.HighDefinition
         void SolveAreaShape()
         {
             if (areaLightShape == AreaLightShape.Disc)
+            {
                 legacyLight.type = LightType.Disc;
+#if UNITY_EDITOR
+                legacyLight.lightmapBakeType = LightmapBakeType.Baked;
+#endif
+            }
             else
             {
                 legacyLight.type = LightType.Point;
@@ -418,6 +408,33 @@ namespace UnityEngine.Rendering.HighDefinition
             LightUnit[] allowedUnits = GetSupportedLightUnits(type, spotLightShape);
 
             return allowedUnits.Any(u => u == unit);
+        }
+
+        //To use in render loop instead of type as we can add on the fly an
+        //HDAdditionalLightData that is not really added to the GameObject
+        //In this case, the type property will return a false value as this will
+        //be base on a default(HDAdditionnalData) which will have a point type
+        internal HDLightType ComputeLightType(Light attachedLight)
+        {
+            switch (attachedLight.type)
+            {
+                case LightType.Spot: return HDLightType.Spot;
+                case LightType.Directional: return HDLightType.Directional;
+                case LightType.Point:
+                    switch (m_PointlightHDType)
+                    {
+                        case PointLightHDType.Punctual: return HDLightType.Point;
+                        case PointLightHDType.Area: return HDLightType.Area;
+                        default:
+                            Debug.Assert(false, $"Unknown {typeof(PointLightHDType).Name} {m_PointlightHDType}. Fallback on Punctual");
+                            return HDLightType.Point;
+                    }
+                case LightType.Disc:
+                    return HDLightType.Area;
+                default:
+                    Debug.Assert(false, $"Unknown {typeof(LightType).Name} {legacyLight.type}. Fallback on Point");
+                    return HDLightType.Point;
+            }
         }
     }
 }

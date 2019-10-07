@@ -1357,7 +1357,7 @@ namespace UnityEngine.Rendering.HighDefinition
             lightData.shadowIndex = -1;
             lightData.screenSpaceShadowIndex = -1;
 
-            HDLightType lightType = additionalLightData.type;
+            HDLightType lightType = additionalLightData.ComputeLightType(lightComponent);
 
             if (lightComponent != null && lightComponent.cookie != null)
             {
@@ -2037,8 +2037,9 @@ namespace UnityEngine.Rendering.HighDefinition
 
                         // Light should always have additional data, however preview light right don't have, so we must handle the case by assigning HDUtils.s_DefaultHDAdditionalLightData
                         var additionalData = GetHDAdditionalLightData(lightComponent);
+                        HDLightType lightType = additionalData.ComputeLightType(lightComponent);
 
-                        if (ShaderConfig.s_AreaLights == 0 && (additionalData.isAreaLight && additionalData.areaLightShape == AreaLightShape.Rectangle || additionalData.areaLightShape == AreaLightShape.Tube))
+                        if (ShaderConfig.s_AreaLights == 0 && (lightType == HDLightType.Area && (additionalData.areaLightShape == AreaLightShape.Rectangle || additionalData.areaLightShape == AreaLightShape.Tube)))
                             continue;
 
                         // First we should evaluate the shadow information for this frame
@@ -2054,7 +2055,7 @@ namespace UnityEngine.Rendering.HighDefinition
                         LightCategory lightCategory = LightCategory.Count;
                         GPULightType gpuLightType = GPULightType.Point;
                         LightVolumeType lightVolumeType = LightVolumeType.Count;
-                        HDRenderPipeline.EvaluateGPULightType(additionalData.type, additionalData.spotLightShape, additionalData.areaLightShape, 
+                        HDRenderPipeline.EvaluateGPULightType(lightType, additionalData.spotLightShape, additionalData.areaLightShape, 
                                                                 ref lightCategory, ref gpuLightType, ref lightVolumeType);
 
                         if (hasDebugLightFilter

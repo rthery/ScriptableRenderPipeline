@@ -60,7 +60,7 @@ namespace UnityEngine.Rendering.HighDefinition
             directColor.intensity       /= Mathf.PI;
             indirectColor.intensity     /= Mathf.PI;
 
-            switch (add.type)
+            switch (add.ComputeLightType(light))
             {
                 case HDLightType.Directional:
                     lightDataGI.orientation.SetLookRotation(light.transform.forward, Vector3.up);

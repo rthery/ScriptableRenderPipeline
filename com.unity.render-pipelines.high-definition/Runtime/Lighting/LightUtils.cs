@@ -465,7 +465,7 @@ namespace UnityEngine.Rendering.HighDefinition
         {
             float intensity = hdLight.intensity;
             float luxAtDistance = hdLight.luxAtDistance;
-            HDLightType lightType = hdLight.type;
+            HDLightType lightType = hdLight.ComputeLightType(light);
 
             // For punctual lights
             if (lightType != HDLightType.Area)

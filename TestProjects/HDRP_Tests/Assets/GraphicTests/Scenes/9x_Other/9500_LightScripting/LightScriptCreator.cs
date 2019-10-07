@@ -72,7 +72,7 @@ public class LightScriptCreator : MonoBehaviour
             }
 
             var supportedLightUnits = hdLight.GetSupportedLightUnits();
-            var type = hdLight.GetLightType();
+            var type = hdLight.GetLightTypeAndShape();
 
             switch (position.x)
             {

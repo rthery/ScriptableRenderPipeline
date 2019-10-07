@@ -126,7 +126,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
                 Matrix4x4 positionMat = Matrix4x4.Translate(currentLegacyLight.transform.position);
 
-                switch(currentHDRLight.type)
+                switch(currentHDRLight.ComputeLightType(currentLegacyLight))
                 {
                     case HDLightType.Point:
                         mpb.SetColor(_ColorShaderID, new Color(0.0f, 0.5f, 0.0f, 1.0f));
