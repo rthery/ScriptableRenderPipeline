@@ -15,7 +15,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
             HDAdditionalLightData.InitDefaultHDAdditionalLightData(hdLight);
 
-            hdLight.SetLightType(lightType);
+            hdLight.SetLightTypeAndShape(lightType);
 
             return hdLight;
         }

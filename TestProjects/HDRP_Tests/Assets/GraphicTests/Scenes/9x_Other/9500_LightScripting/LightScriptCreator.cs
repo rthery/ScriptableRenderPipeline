@@ -44,27 +44,27 @@ public class LightScriptCreator : MonoBehaviour
             switch (position.y)
             {
                 case 0: // Spot Box
-                    hdLight.SetLightType(HDLightTypeAndShape.BoxSpot);
+                    hdLight.SetLightTypeAndShape(HDLightTypeAndShape.BoxSpot);
                     break;
                 case 1: // Spot Pyramid
-                    hdLight.SetLightType(HDLightTypeAndShape.PyramidSpot);
+                    hdLight.SetLightTypeAndShape(HDLightTypeAndShape.PyramidSpot);
                     break;
                 case 2: // Spot Cone
-                    hdLight.SetLightType(HDLightTypeAndShape.ConeSpot);
+                    hdLight.SetLightTypeAndShape(HDLightTypeAndShape.ConeSpot);
                     break;
                 case 3: // Point
-                    hdLight.SetLightType(HDLightTypeAndShape.Point);
+                    hdLight.SetLightTypeAndShape(HDLightTypeAndShape.Point);
                     break;
                 case 4: // Directional
-                    hdLight.SetLightType(HDLightTypeAndShape.Directional);
+                    hdLight.SetLightTypeAndShape(HDLightTypeAndShape.Directional);
                     hdLight.SetIntensity(0.01f);
                     break;
                 case 5: // Rectangle
-                    hdLight.SetLightType(HDLightTypeAndShape.RectangleArea);
+                    hdLight.SetLightTypeAndShape(HDLightTypeAndShape.RectangleArea);
                     hdLight.intensity /= 4;
                     break;
                 case 6: // Tube
-                    hdLight.SetLightType(HDLightTypeAndShape.TubeArea);
+                    hdLight.SetLightTypeAndShape(HDLightTypeAndShape.TubeArea);
                     hdLight.intensity /= 2;
                     break;
                 default:

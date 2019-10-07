@@ -293,10 +293,10 @@ namespace UnityEngine.Rendering.HighDefinition
         /// Set the type of the light and its shape.
         /// Note: this will also change the unit of the light if the current one is not supported by the new light type.
         /// </summary>
-        /// <param name="condensedType"></param>
-        public void SetLightType(HDLightTypeAndShape condensedType)
+        /// <param name="typeAndShape"></param>
+        public void SetLightTypeAndShape(HDLightTypeAndShape typeAndShape)
         {
-            switch (condensedType)
+            switch (typeAndShape)
             {
                 case HDLightTypeAndShape.Point:
                     type = HDLightType.Point;
