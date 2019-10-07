@@ -1,5 +1,5 @@
 editors:
-  - version: trunk
+  - version: graphics/vfx/fix/1180192-add-default-inspector
 platforms:
   - name: Windows64
     type: Unity::VM::GPU

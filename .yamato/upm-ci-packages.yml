@@ -1,5 +1,5 @@
 editors:
-  - version: trunk
+  - version: graphics/vfx/fix/1180192-add-default-inspector
 packages:
   - name: Core
     id: core
