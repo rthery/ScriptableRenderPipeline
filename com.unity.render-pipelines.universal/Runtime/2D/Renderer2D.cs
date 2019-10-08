@@ -112,7 +112,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
                     );
                     EnqueuePass(m_PostProcessPass);
 
-                    m_FinalPostProcessPass.SetupFinalPass(m_AfterPostProcessColorHandle, true);
+                    m_FinalPostProcessPass.SetupFinalPass(m_AfterPostProcessColorHandle);
                     EnqueuePass(m_FinalPostProcessPass);
 
                     requireFinalBlitPass = false;

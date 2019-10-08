@@ -123,13 +123,13 @@ namespace UnityEngine.Rendering.Universal.Internal
             m_EnableSRGBConversionIfNeeded = enableSRGBConversion;
         }
 
-        public void SetupFinalPass(in RenderTargetHandle source, bool enableSRGBConversion)
+        public void SetupFinalPass(in RenderTargetHandle source)
         {
             m_Source = source;
             m_Destination = RenderTargetHandle.CameraTarget;
             m_IsFinalPass = true;
             m_HasFinalPass = false;
-            m_EnableSRGBConversionIfNeeded = enableSRGBConversion;
+            m_EnableSRGBConversionIfNeeded = true;
         }
 
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)

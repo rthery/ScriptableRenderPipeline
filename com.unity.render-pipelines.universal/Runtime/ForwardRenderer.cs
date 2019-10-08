@@ -244,7 +244,7 @@ namespace UnityEngine.Rendering.Universal
 
                     if (requiresFinalPostProcessPass)
                     {
-                        m_FinalPostProcessPass.SetupFinalPass(m_ActiveCameraColorAttachment, true);
+                        m_FinalPostProcessPass.SetupFinalPass(m_ActiveCameraColorAttachment);
                         EnqueuePass(m_FinalPostProcessPass);
                     }
                     else
@@ -262,7 +262,7 @@ namespace UnityEngine.Rendering.Universal
                     {
                         m_PostProcessPass.Setup(cameraTargetDescriptor, m_ActiveCameraColorAttachment, m_AfterPostProcessColor, m_ActiveCameraDepthAttachment, m_ColorGradingLut, true, false);
                         EnqueuePass(m_PostProcessPass);
-                        m_FinalPostProcessPass.SetupFinalPass(m_AfterPostProcessColor, true);
+                        m_FinalPostProcessPass.SetupFinalPass(m_AfterPostProcessColor);
                         EnqueuePass(m_FinalPostProcessPass);
                     }
                     else
