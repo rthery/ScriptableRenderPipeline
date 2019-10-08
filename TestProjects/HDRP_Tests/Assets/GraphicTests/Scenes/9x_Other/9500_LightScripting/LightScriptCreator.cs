@@ -33,11 +33,11 @@ public class LightScriptCreator : MonoBehaviour
 
             // Position the light in front of the plane
             go.transform.localPosition = new Vector3(position.x, position.y, -3);
-
-            var hdLight = go.AddHDLight(HDLightTypeAndShape.BoxSpot);
+            
+            var hdLight = go.AddHDLight(HDLightTypeAndShape.Point);
 
             // Set global parameters
-            hdLight.SetIntensity(05);
+            hdLight.SetIntensity(50);
             hdLight.SetRange(1.01f);
             hdLight.SetSpotAngle(60);
 
