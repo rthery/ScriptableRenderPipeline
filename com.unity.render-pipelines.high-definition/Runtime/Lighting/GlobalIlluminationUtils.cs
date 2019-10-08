@@ -35,7 +35,7 @@ namespace UnityEngine.Rendering.HighDefinition
 #if UNITY_EDITOR
             LightMode lightMode = LightmapperUtils.Extract(light.lightmapBakeType);
 #else
-            LightMode lightMode = LightmapperUtils.Extract(l.bakingOutput.lightmapBakeType);
+            LightMode lightMode = LightmapperUtils.Extract(light.bakingOutput.lightmapBakeType);
 #endif
 
             lightDataGI.color = directColor;
@@ -48,7 +48,7 @@ namespace UnityEngine.Rendering.HighDefinition
 #if UNITY_EDITOR
             lightDataGI.mode = LightmapperUtils.Extract(light.lightmapBakeType);
 #else
-            ld.mode = LightmapperUtils.Extract(l.bakingOutput.lightmapBakeType);
+            lightDataGI.mode = LightmapperUtils.Extract(light.bakingOutput.lightmapBakeType);
 #endif
 
             lightDataGI.shadow = (byte)(light.shadows != LightShadows.None ? 1 : 0);
@@ -71,7 +71,7 @@ namespace UnityEngine.Rendering.HighDefinition
 #if UNITY_EDITOR
                     lightDataGI.shape0 = light.shadows != LightShadows.None ? (Mathf.Deg2Rad * light.shadowAngle) : 0.0f;
 #else
-                    ld.shape0 = 0.0f;
+                    lightDataGI.shape0 = 0.0f;
 #endif
                     lightDataGI.shape1 = 0.0f;
                     lightDataGI.type = UnityEngine.Experimental.GlobalIllumination.LightType.Directional;
@@ -157,7 +157,7 @@ namespace UnityEngine.Rendering.HighDefinition
 #if UNITY_EDITOR
                     lightDataGI.shape0 = light.shadows != LightShadows.None ? light.shadowRadius : 0.0f;
 #else
-                    ld.shape0 = 0.0f;
+                    lightDataGI.shape0 = 0.0f;
 #endif
                     lightDataGI.shape1 = 0.0f;
                     lightDataGI.type = UnityEngine.Experimental.GlobalIllumination.LightType.Point;
@@ -177,8 +177,8 @@ namespace UnityEngine.Rendering.HighDefinition
                             lightDataGI.shape0 = light.areaSize.x;
                             lightDataGI.shape1 = light.areaSize.y;
 #else
-                            ld.shape0 = 0.0f;
-                            ld.shape1 = 0.0f;
+                            lightDataGI.shape0 = 0.0f;
+                            lightDataGI.shape1 = 0.0f;
 #endif
                             // TEMP: for now, if we bake a rectangle type this will disable the light for runtime, need to speak with GI team about it!
                             lightDataGI.type = UnityEngine.Experimental.GlobalIllumination.LightType.Rectangle;
@@ -199,8 +199,8 @@ namespace UnityEngine.Rendering.HighDefinition
                             lightDataGI.shape0 = light.areaSize.x; // [TODO: we must feel the radius here instead... to check]
                             lightDataGI.shape1 = light.areaSize.y; // [TODO: we must feel the radius here instead... to check]
 #else
-                            ld.shape0 = 0.0f;
-                            ld.shape1 = 0.0f;
+                            lightDataGI.shape0 = 0.0f;
+                            lightDataGI.shape1 = 0.0f;
 #endif
                             // TEMP: for now, if we bake a rectangle type this will disable the light for runtime, need to speak with GI team about it!
                             lightDataGI.type = UnityEngine.Experimental.GlobalIllumination.LightType.Disc;
@@ -224,10 +224,10 @@ namespace UnityEngine.Rendering.HighDefinition
         static public Lightmapping.RequestLightsDelegate hdLightsDelegate = (Light[] requests, NativeArray<LightDataGI> lightsOutput) =>
         {
             // Get all lights in the scene
-            LightDataGI ld = new LightDataGI();
+            LightDataGI lightDataGI = new LightDataGI();
             for (int i = 0; i < requests.Length; i++)
             {
-                Light l = requests[i];
+                Light light = requests[i];
 
                 // For editor we need to discard realtime light as otherwise we get double contribution
                 // At runtime for Enlighten we must keep realtime light but we can discard other light as they aren't used.
@@ -235,18 +235,18 @@ namespace UnityEngine.Rendering.HighDefinition
                 // The difference is that `l.lightmapBakeType` is the intent, e.g.you want a mixed light with shadowmask. But then the overlap test might detect more than 4 overlapping volumes and force a light to fallback to baked.
                 // In that case `l.bakingOutput.lightmapBakeType` would be baked, instead of mixed, whereas `l.lightmapBakeType` would still be mixed. But this difference is only relevant in editor builds
 #if UNITY_EDITOR
-                if (LightmapperUtils.Extract(l.lightmapBakeType) == LightMode.Realtime)
-                    ld.InitNoBake(l.GetInstanceID());
+                if (LightmapperUtils.Extract(light.lightmapBakeType) == LightMode.Realtime)
+                    lightDataGI.InitNoBake(light.GetInstanceID());
                 else
-                    LightDataGIExtract(l, ref ld);
+                    LightDataGIExtract(light, ref lightDataGI);
 #else
-                if (LightmapperUtils.Extract(l.bakingOutput.lightmapBakeType) == LightMode.Realtime)
-                    LightDataGIExtract(l, ref ld);
+                if (LightmapperUtils.Extract(light.bakingOutput.lightmapBakeType) == LightMode.Realtime)
+                    LightDataGIExtract(light, ref lightDataGI);
                 else
-                    ld.InitNoBake(l.GetInstanceID());
+                    lightDataGI.InitNoBake(light.GetInstanceID());
 #endif
 
-                lightsOutput[i] = ld;
+                lightsOutput[i] = lightDataGI;
             }
         };
     }
