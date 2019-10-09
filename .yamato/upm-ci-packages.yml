@@ -7,6 +7,8 @@ editors:
     cmd: -u 2019.2.5f1
   - version: 71335f907914
     cmd: -r 71335f907914
+  - version: 17c0db2d1169
+    cmd: -r 17c0db2d1169
 packages:
   - name: Core
     id: core
