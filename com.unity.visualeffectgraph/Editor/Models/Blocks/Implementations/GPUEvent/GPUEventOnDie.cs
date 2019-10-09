@@ -40,6 +40,7 @@ namespace UnityEditor.VFX.Block
 
         public class OutputProperties
         {
+            [Tooltip("Outputs a GPU event which can connect to another system via a GPUEvent context. Attributes from the current system can be inherited in the new system.")]
             public GPUEvent evt = new GPUEvent();
         }
 

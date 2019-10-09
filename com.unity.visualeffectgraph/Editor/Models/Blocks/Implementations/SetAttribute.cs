@@ -58,7 +58,7 @@ namespace UnityEditor.VFX.Block
             Source
         }
 
-        [VFXSetting(VFXSettingAttribute.VisibleFlags.InInspector), StringProvider(typeof(ReadWritableAttributeProvider)), Tooltip("0 Set the value for this attribute.")]
+        [VFXSetting(VFXSettingAttribute.VisibleFlags.InInspector), StringProvider(typeof(ReadWritableAttributeProvider))]
         public string attribute;
 
         [VFXSetting(VFXSettingAttribute.VisibleFlags.InInspector), Tooltip("Specifies what operation to perform on the chosen attribute. The input value can overwrite, add to, multiply with, or blend with the existing attribute value.")]
