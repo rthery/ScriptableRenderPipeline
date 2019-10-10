@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.VFX.Block;
 using UnityEngine;
-using UnityEngine.VFX;
+using UnityEngine.Serialization;
 
 namespace UnityEditor.VFX
 {
@@ -13,7 +12,7 @@ namespace UnityEditor.VFX
         public override string codeGeneratorTemplate { get { return RenderPipeTemplate(useNativeLines ? "VFXParticleLinesHW" : "VFXParticleLinesSW"); } }
         public override VFXTaskType taskType { get { return useNativeLines ? VFXTaskType.ParticleLineOutput : VFXTaskType.ParticleQuadOutput; } }
 
-        [VFXSetting, SerializeField, Tooltip("When enabled, a custom offset from the particle position can be specified for the particle line to connect to. When disabled, the line connects with the particle’s Target Position attribute.")]
+        [VFXSetting, SerializeField, FormerlySerializedAs("targetFromAttributes"), Tooltip("When enabled, a custom offset from the particle position can be specified for the particle line to connect to. When disabled, the line connects with the particle’s Target Position attribute.")]
         protected bool useTargetOffset = true;
 
         [VFXSetting(VFXSettingAttribute.VisibleFlags.InInspector), SerializeField, Tooltip("When enabled, the Line Output will render native line primitives. These might be faster on some platforms, but they cannot be anti-aliased.")]
