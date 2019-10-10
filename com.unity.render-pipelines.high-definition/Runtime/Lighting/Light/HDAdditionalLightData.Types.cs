@@ -136,7 +136,7 @@ namespace UnityEngine.Rendering.HighDefinition
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static bool IsRuntime(this HDLightTypeAndShape type)
+        public static bool SupportRuntimeOnly(this HDLightTypeAndShape type)
             => type != HDLightTypeAndShape.DiscArea;
 
         /// <summary>
@@ -144,8 +144,17 @@ namespace UnityEngine.Rendering.HighDefinition
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static bool IsBakeable(this HDLightTypeAndShape type)
+        public static bool SupportBakedOnly(this HDLightTypeAndShape type)
             => type != HDLightTypeAndShape.TubeArea;
+
+        /// <summary>
+        /// Returns true if the hd light type can be used in mixed mode
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool SupportMixed(this HDLightTypeAndShape type)
+            => type != HDLightTypeAndShape.TubeArea
+            && type != HDLightTypeAndShape.DiscArea;
     }
     
     public partial class HDAdditionalLightData

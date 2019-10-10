@@ -277,7 +277,6 @@ namespace UnityEditor.Rendering.HighDefinition
 
     internal static partial class SerializedPropertyExtention
     {
-        //[TODO: check example]
         /// <summary>
         /// Helper to get an enum value from a SerializedProperty.
         /// This handle case where index do not correspond to enum value.
