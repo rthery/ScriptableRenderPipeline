@@ -209,9 +209,11 @@ namespace UnityEngine.Rendering.HighDefinition
                     {
                         case HDLightType.Directional:
                             legacyLight.type = LightType.Directional;
+                            m_PointlightHDType = PointLightHDType.Punctual;
                             break;
                         case HDLightType.Spot:
                             legacyLight.type = LightType.Spot;
+                            m_PointlightHDType = PointLightHDType.Punctual;
                             break;
                         case HDLightType.Point:
                             legacyLight.type = LightType.Point;
@@ -275,6 +277,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
         void SolveAreaShape()
         {
+            m_PointlightHDType = PointLightHDType.Area;
             if (areaLightShape == AreaLightShape.Disc)
             {
                 legacyLight.type = LightType.Disc;
@@ -285,7 +288,6 @@ namespace UnityEngine.Rendering.HighDefinition
             else
             {
                 legacyLight.type = LightType.Point;
-                m_PointlightHDType = PointLightHDType.Area;
             }
         }
 

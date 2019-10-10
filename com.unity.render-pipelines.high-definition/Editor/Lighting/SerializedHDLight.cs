@@ -1,6 +1,7 @@
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine;
-using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace UnityEditor.Rendering.HighDefinition
 {
@@ -96,10 +97,13 @@ namespace UnityEditor.Rendering.HighDefinition
                 : (serializedObject.targetObjects[0] as HDAdditionalLightData).type;
             set
             {
+                //Note: type is split in both component
+                var undoObjects = serializedObject.targetObjects.SelectMany((Object x) => new Object[] { x, (x as HDAdditionalLightData).legacyLight }).ToArray();
+                Undo.RecordObjects(undoObjects, "Change light type");
                 var objects = serializedObject.targetObjects;
-                Undo.RecordObjects(objects, "Change light type");
                 for (int index = 0; index < objects.Length; ++index)
                     (objects[index] as HDAdditionalLightData).type = value;
+                serializedObject.Update();
             }
         }
 
@@ -124,10 +128,13 @@ namespace UnityEditor.Rendering.HighDefinition
                 : (serializedObject.targetObjects[0] as HDAdditionalLightData).areaLightShape;
             set
             {
+                //Note: Disc is actually changing legacyLight.type to Disc
+                var undoObjects = serializedObject.targetObjects.SelectMany((Object x) => new Object[] { x, (x as HDAdditionalLightData).legacyLight }).ToArray();
+                Undo.RecordObjects(undoObjects, "Change light area shape");
                 var objects = serializedObject.targetObjects;
-                Undo.RecordObjects(objects, "Change light area shape");
                 for (int index = 0; index < objects.Length; ++index)
                     (objects[index] as HDAdditionalLightData).areaLightShape = value;
+                serializedObject.Update();
             }
         }
 

@@ -177,8 +177,8 @@ namespace UnityEditor.Rendering.HighDefinition
             HDLightType updatedLightType = (HDLightType)EditorGUILayout.Popup(s_Styles.shape, index, s_Styles.shapeNames);
             if (EditorGUI.EndChangeCheck())
             {
-                Undo.RecordObjects(serialized.serializedObject.targetObjects, "Changed Light Type");
-                
+                serialized.type = updatedLightType; //also register undo
+
                 if (updatedLightType == HDLightType.Area)
                 {
                     switch (serialized.areaLightShape)
@@ -199,7 +199,6 @@ namespace UnityEditor.Rendering.HighDefinition
                             break;
                     }
                 }
-                serialized.type = updatedLightType;
                 
                 UpdateLightIntensityUnit(serialized, owner);
 
@@ -338,7 +337,7 @@ namespace UnityEditor.Rendering.HighDefinition
                     AreaLightShape updatedAreaLightShape = (AreaLightShape)EditorGUILayout.Popup(s_Styles.areaLightShape, index, s_Styles.areaShapeNames);
                     if (EditorGUI.EndChangeCheck())
                     {
-                        serialized.areaLightShape = updatedAreaLightShape;
+                        serialized.areaLightShape = updatedAreaLightShape; //also register undo
                         UpdateLightIntensityUnit(serialized, owner);
                     }
                     EditorGUI.showMixedValue = false;
