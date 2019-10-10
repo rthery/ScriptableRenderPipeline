@@ -50,17 +50,21 @@ namespace UnityEngine.Rendering.HighDefinition
 #else
             lightDataGI.mode = LightmapperUtils.Extract(light.bakingOutput.lightmapBakeType);
 #endif
-
+            
             lightDataGI.shadow = (byte)(light.shadows != LightShadows.None ? 1 : 0);
             
-            // For HDRP we need to divide the analytic light color by PI (HDRP do explicit PI division for Lambert, but built in Unity and the GI don't for punctual lights)
-            // We apply it on both direct and indirect are they are separated, seems that direct is no used if we used mixed mode with indirect or shadowmask bake.
-            lightDataGI.color.intensity          /= Mathf.PI;
-            lightDataGI.indirectColor.intensity  /= Mathf.PI;
-            directColor.intensity       /= Mathf.PI;
-            indirectColor.intensity     /= Mathf.PI;
+            HDLightType lightType = add.ComputeLightType(light);
+            if (lightType != HDLightType.Area)
+            {
+                // For HDRP we need to divide the analytic light color by PI (HDRP do explicit PI division for Lambert, but built in Unity and the GI don't for punctual lights)
+                // We apply it on both direct and indirect are they are separated, seems that direct is no used if we used mixed mode with indirect or shadowmask bake.
+                lightDataGI.color.intensity         /= Mathf.PI;
+                lightDataGI.indirectColor.intensity /= Mathf.PI;
+                directColor.intensity               /= Mathf.PI;
+                indirectColor.intensity             /= Mathf.PI;
+            }
 
-            switch (add.ComputeLightType(light))
+            switch (lightType)
             {
                 case HDLightType.Directional:
                     lightDataGI.orientation.SetLookRotation(light.transform.forward, Vector3.up);
