@@ -200,8 +200,8 @@ namespace UnityEngine.Rendering.HighDefinition
                             lightDataGI.coneAngle = 0.0f;
                             lightDataGI.innerConeAngle = 0.0f;
 #if UNITY_EDITOR
-                            lightDataGI.shape0 = light.areaSize.x; // [TODO: we must feel the radius here instead... to check]
-                            lightDataGI.shape1 = light.areaSize.y; // [TODO: we must feel the radius here instead... to check]
+                            lightDataGI.shape0 = light.areaSize.x;
+                            lightDataGI.shape1 = light.areaSize.y;
 #else
                             lightDataGI.shape0 = 0.0f;
                             lightDataGI.shape1 = 0.0f;

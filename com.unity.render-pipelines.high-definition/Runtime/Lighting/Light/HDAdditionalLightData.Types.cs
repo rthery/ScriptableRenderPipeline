@@ -220,7 +220,7 @@ namespace UnityEngine.Rendering.HighDefinition
                             m_PointlightHDType = PointLightHDType.Punctual;
                             break;
                         case HDLightType.Area:
-                            SolveAreaShape();
+                            ResolveAreaShape();
                             break;
                         default:
                             Debug.Assert(false, $"Unknown {typeof(HDLightType).Name} {value}.");
@@ -270,12 +270,12 @@ namespace UnityEngine.Rendering.HighDefinition
 
                 m_AreaLightShape = value;
                 if (type == HDLightType.Area)
-                    SolveAreaShape();
+                    ResolveAreaShape();
                 UpdateAllLightValues();
             }
         }
 
-        void SolveAreaShape()
+        void ResolveAreaShape()
         {
             m_PointlightHDType = PointLightHDType.Area;
             if (areaLightShape == AreaLightShape.Disc)
