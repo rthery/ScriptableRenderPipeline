@@ -27,9 +27,9 @@ namespace UnityEditor.VFX.Block
 
         public class CustomProperties
         {
-            [Range(0, 1), Tooltip("Sets the position along the height to emit particles from when â€˜Custom Emissionâ€™ is used.")]
+            [Range(0, 1), Tooltip("Sets the position along the height to emit particles from when ‘Custom Emission’ is used.")]
             public float HeightSequencer = 0.0f;
-            [Range(0, 1), Tooltip("Sets the position on the arc to emit particles from when â€˜Custom Emissionâ€™ is used.")]
+            [Range(0, 1), Tooltip("Sets the position on the arc to emit particles from when ‘Custom Emission’ is used.")]
             public float ArcSequencer = 0.0f;
         }
 
@@ -42,13 +42,13 @@ namespace UnityEditor.VFX.Block
 
                 yield return new VFXNamedExpression(CalculateVolumeFactor(positionMode, 0, 1), "volumeFactor");
 
-                VFXExpression baseRadius = inputSlots[0][0][1].GetExpression();
-                VFXExpression topRadius = inputSlots[0][0][2].GetExpression();
-                VFXExpression height = inputSlots[0][0][3].GetExpression();
-                VFXExpression tanSlope = (topRadius - baseRadius) / height;
+                VFXExpression radius0 = inputSlots[0][1].GetExpression();
+                VFXExpression radius1 = inputSlots[0][2].GetExpression();
+                VFXExpression height = inputSlots[0][3].GetExpression();
+                VFXExpression tanSlope = (radius1 - radius0) / height;
                 VFXExpression slope = new VFXExpressionATan(tanSlope);
                 if (spawnMode == SpawnMode.Random)
-                    yield return new VFXNamedExpression(topRadius / tanSlope, "fullConeHeight");
+                    yield return new VFXNamedExpression(radius1 / tanSlope, "fullConeHeight");
                 yield return new VFXNamedExpression(new VFXExpressionCombine(new VFXExpression[] { new VFXExpressionSin(slope), new VFXExpressionCos(slope) }), "sincosSlope");
             }
         }
@@ -92,7 +92,7 @@ float3 base = float3(pos * ArcCone_radius0, 0.0f);
                 else if (spawnMode == SpawnMode.Random)
                 {
                     outSource += @"
-float heightFactor = pow(ArcCone_baseRadius / ArcCone_topRadius, 3.0f);
+float heightFactor = pow(ArcCone_radius0 / ArcCone_radius1, 3.0f);
 float hNorm = pow(heightFactor + (1 - heightFactor) * RAND, 1.0f / 3.0f);
 float3 base = float3(0.0f, 0.0f, ArcCone_height - fullConeHeight);
 ";

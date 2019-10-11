@@ -18,8 +18,8 @@ namespace UnityEditor.VFX
         public override void RegisterEditableMembers(IContext context)
         {
             m_CenterProperty = context.RegisterProperty<Vector3>("center");
-            m_BaseRadiusProperty = context.RegisterProperty<float>("baseRadius");
-            m_TopRadiusProperty = context.RegisterProperty<float>("topRadius");
+            m_BaseRadiusProperty = context.RegisterProperty<float>("radius0");
+            m_TopRadiusProperty = context.RegisterProperty<float>("radius1");
             m_HeightProperty = context.RegisterProperty<float>("height");
         }
 
@@ -41,17 +41,17 @@ namespace UnityEditor.VFX
                     extremities = new List<Vector3>(8);
                 extremities.Clear();
 
-                extremities.Add(topCap + Vector3.forward * cone.topRadius);
-                extremities.Add(topCap - Vector3.forward * cone.topRadius);
+                extremities.Add(topCap + Vector3.forward * cone.radius1);
+                extremities.Add(topCap - Vector3.forward * cone.radius1);
 
-                extremities.Add(topCap + Vector3.left * cone.topRadius);
-                extremities.Add(topCap - Vector3.left * cone.topRadius);
+                extremities.Add(topCap + Vector3.left * cone.radius1);
+                extremities.Add(topCap - Vector3.left * cone.radius1);
 
-                extremities.Add(bottomCap + Vector3.forward * cone.baseRadius);
-                extremities.Add(bottomCap - Vector3.forward * cone.baseRadius);
+                extremities.Add(bottomCap + Vector3.forward * cone.radius0);
+                extremities.Add(bottomCap - Vector3.forward * cone.radius0);
 
-                extremities.Add(bottomCap + Vector3.left * cone.baseRadius);
-                extremities.Add(bottomCap - Vector3.left * cone.baseRadius);
+                extremities.Add(bottomCap + Vector3.left * cone.radius0);
+                extremities.Add(bottomCap - Vector3.left * cone.radius0);
 
                 visibleCount = 4;
             }
@@ -72,29 +72,29 @@ namespace UnityEditor.VFX
                     extremities = new List<Vector3>(8);
                 extremities.Clear();
 
-                extremities.Add(topCap + Vector3.forward * cone.topRadius);
+                extremities.Add(topCap + Vector3.forward * cone.radius1);
                 if (count > 1)
                 {
-                    extremities.Add(topCap - Vector3.left * cone.topRadius);
+                    extremities.Add(topCap - Vector3.left * cone.radius1);
                     if (count > 2)
                     {
-                        extremities.Add(topCap - Vector3.forward * cone.topRadius);
+                        extremities.Add(topCap - Vector3.forward * cone.radius1);
                         if (count > 3)
                         {
-                            extremities.Add(topCap + Vector3.left * cone.topRadius);
+                            extremities.Add(topCap + Vector3.left * cone.radius1);
                         }
                     }
                 }
-                extremities.Add(bottomCap + Vector3.forward * cone.baseRadius);
+                extremities.Add(bottomCap + Vector3.forward * cone.radius0);
                 if (count > 1)
                 {
-                    extremities.Add(bottomCap - Vector3.left * cone.baseRadius);
+                    extremities.Add(bottomCap - Vector3.left * cone.radius0);
                     if (count > 2)
                     {
-                        extremities.Add(bottomCap - Vector3.forward * cone.baseRadius);
+                        extremities.Add(bottomCap - Vector3.forward * cone.radius0);
                         if (count > 3)
                         {
-                            extremities.Add(bottomCap + Vector3.left * cone.baseRadius);
+                            extremities.Add(bottomCap + Vector3.left * cone.radius0);
                         }
                     }
                 }
@@ -176,14 +176,14 @@ namespace UnityEditor.VFX
 
             if (!m_Dragging)
             {
-                topRadiusScreen = (HandleUtility.WorldToGUIPoint(extremities.topCap) - HandleUtility.WorldToGUIPoint(extremities.topCap + Vector3.forward * cone.topRadius)).magnitude;
-                baseRadiusScreen = (HandleUtility.WorldToGUIPoint(extremities.bottomCap) - HandleUtility.WorldToGUIPoint(extremities.bottomCap + Vector3.forward * cone.baseRadius)).magnitude;
+                topRadiusScreen = (HandleUtility.WorldToGUIPoint(extremities.topCap) - HandleUtility.WorldToGUIPoint(extremities.topCap + Vector3.forward * cone.radius1)).magnitude;
+                baseRadiusScreen = (HandleUtility.WorldToGUIPoint(extremities.bottomCap) - HandleUtility.WorldToGUIPoint(extremities.bottomCap + Vector3.forward * cone.radius0)).magnitude;
             }
 
             using (new Handles.DrawingScope(Handles.matrix * Matrix4x4.Translate(cone.center)))
             {
-                Handles.DrawWireDisc(extremities.topCap, Vector3.up, cone.topRadius);
-                Handles.DrawWireDisc(extremities.bottomCap, Vector3.up, cone.baseRadius);
+                Handles.DrawWireDisc(extremities.topCap, Vector3.up, cone.radius1);
+                Handles.DrawWireDisc(extremities.bottomCap, Vector3.up, cone.radius0);
 
                 for (int i = 0; i < extremities.extremities.Count / 2; ++i)
                 {
@@ -196,7 +196,7 @@ namespace UnityEditor.VFX
 
         public override Bounds OnGetSpacedGizmoBounds(Cone value)
         {
-            return new Bounds(value.center, new Vector3(Mathf.Max(value.baseRadius, value.topRadius), Mathf.Max(value.baseRadius, value.topRadius), value.height)); //TODO take orientation in account
+            return new Bounds(value.center, new Vector3(Mathf.Max(value.radius0, value.radius1), Mathf.Max(value.radius0, value.radius1), value.height)); //TODO take orientation in account
         }
     }
     [VFXGizmo(typeof(ArcCone))]
@@ -211,8 +211,8 @@ namespace UnityEditor.VFX
         public override void RegisterEditableMembers(IContext context)
         {
             m_CenterProperty = context.RegisterProperty<Vector3>("center");
-            m_baseRadiusProperty = context.RegisterProperty<float>("baseRadius");
-            m_topRadiusProperty = context.RegisterProperty<float>("topRadius");
+            m_baseRadiusProperty = context.RegisterProperty<float>("radius0");
+            m_topRadiusProperty = context.RegisterProperty<float>("radius1");
             m_HeightProperty = context.RegisterProperty<float>("height");
             m_ArcProperty = context.RegisterProperty<float>("arc");
         }
@@ -227,7 +227,7 @@ namespace UnityEditor.VFX
         public override void OnDrawSpacedGizmo(ArcCone arcCone)
         {
             float arc = arcCone.arc * Mathf.Rad2Deg;
-            Cone cone = new Cone { center = arcCone.cone.center, baseRadius = arcCone.cone.baseRadius, topRadius = arcCone.cone.topRadius, height = arcCone.cone.height };
+            Cone cone = new Cone { center = arcCone.center, radius0 = arcCone.radius0, radius1 = arcCone.radius1, height = arcCone.height };
             extremities.Build(cone, arc);
             Vector3 arcDirection = Quaternion.AngleAxis(arc, Vector3.up) * Vector3.forward;
             if (Event.current != null && Event.current.type == EventType.MouseDown)
@@ -241,17 +241,17 @@ namespace UnityEditor.VFX
 
             if (!m_Dragging)
             {
-                topRadiusScreen = (HandleUtility.WorldToGUIPoint(extremities.topCap) - HandleUtility.WorldToGUIPoint(extremities.topCap + Vector3.forward * cone.topRadius)).magnitude;
-                baseRadiusScreen = (HandleUtility.WorldToGUIPoint(extremities.bottomCap) - HandleUtility.WorldToGUIPoint(extremities.bottomCap + Vector3.forward * cone.baseRadius)).magnitude;
+                topRadiusScreen = (HandleUtility.WorldToGUIPoint(extremities.topCap) - HandleUtility.WorldToGUIPoint(extremities.topCap + Vector3.forward * cone.radius1)).magnitude;
+                baseRadiusScreen = (HandleUtility.WorldToGUIPoint(extremities.bottomCap) - HandleUtility.WorldToGUIPoint(extremities.bottomCap + Vector3.forward * cone.radius0)).magnitude;
             }
 
-            using (new Handles.DrawingScope(Handles.matrix * Matrix4x4.Translate(arcCone.cone.center)))
+            using (new Handles.DrawingScope(Handles.matrix * Matrix4x4.Translate(arcCone.center)))
             {
                 if (topRadiusScreen > 2)
-                    Handles.DrawWireArc(extremities.topCap, Vector3.up, Vector3.forward, arc, arcCone.cone.topRadius);
+                    Handles.DrawWireArc(extremities.topCap, Vector3.up, Vector3.forward, arc, arcCone.radius1);
 
                 if (baseRadiusScreen > 2)
-                    Handles.DrawWireArc(extremities.bottomCap, Vector3.up, Vector3.forward, arc, arcCone.cone.baseRadius);
+                    Handles.DrawWireArc(extremities.bottomCap, Vector3.up, Vector3.forward, arc, arcCone.radius0);
 
                 for (int i = 0; i < extremities.extremities.Count / 2 && i < extremities.visibleCount; ++i)
                 {
@@ -262,12 +262,12 @@ namespace UnityEditor.VFX
                 Handles.DrawLine(extremities.bottomCap, extremities.extremities[extremities.extremities.Count / 2]);
 
 
-                Handles.DrawLine(extremities.topCap, extremities.topCap + arcDirection * arcCone.cone.topRadius);
-                Handles.DrawLine(extremities.bottomCap, arcDirection * arcCone.cone.baseRadius);
+                Handles.DrawLine(extremities.topCap, extremities.topCap + arcDirection * arcCone.radius1);
+                Handles.DrawLine(extremities.bottomCap, arcDirection * arcCone.radius0);
 
-                Handles.DrawLine(arcDirection * arcCone.cone.baseRadius, extremities.topCap + arcDirection * arcCone.cone.topRadius);
-                float radius = arcCone.cone.baseRadius > arcCone.cone.topRadius ? arcCone.cone.baseRadius : arcCone.cone.topRadius;
-                Vector3 center = arcCone.cone.baseRadius > arcCone.cone.topRadius ? Vector3.zero : extremities.topCap;
+                Handles.DrawLine(arcDirection * arcCone.radius0, extremities.topCap + arcDirection * arcCone.radius1);
+                float radius = arcCone.radius0 > arcCone.radius1 ? arcCone.radius0 : arcCone.radius1;
+                Vector3 center = arcCone.radius0 > arcCone.radius1 ? Vector3.zero : extremities.topCap;
 
                 if (radius != 0)
                     ArcGizmo(center, radius, arc, m_ArcProperty, Quaternion.identity, true);
@@ -278,7 +278,7 @@ namespace UnityEditor.VFX
 
         public override Bounds OnGetSpacedGizmoBounds(ArcCone value)
         {
-            return new Bounds(value.cone.center, new Vector3(Mathf.Max(value.cone.baseRadius, value.cone.topRadius), Mathf.Max(value.cone.baseRadius, value.cone.topRadius), value.cone.height)); //TODO take orientation in account
+            return new Bounds(value.center, new Vector3(Mathf.Max(value.radius0, value.radius1), Mathf.Max(value.radius0, value.radius1), value.height)); //TODO take orientation in account
         }
     }
 }

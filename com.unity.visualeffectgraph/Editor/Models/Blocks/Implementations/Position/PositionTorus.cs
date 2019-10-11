@@ -13,7 +13,7 @@ namespace UnityEditor.VFX.Block
         public class InputProperties
         {
             [Tooltip("Sets the torus used for positioning the particles.")]
-            public ArcTorus ArcTorus = ArcTorus.defaultValue;
+            public ArcTorus ArcTorus =  ArcTorus.defaultValue;
         }
 
         public class CustomProperties
@@ -30,7 +30,7 @@ namespace UnityEditor.VFX.Block
                     yield return p;
 
                 yield return new VFXNamedExpression(CalculateVolumeFactor(positionMode, 0, 1), "volumeFactor");
-                yield return new VFXNamedExpression(VFXOperatorUtility.Saturate(inputSlots[0][0][2].GetExpression() / inputSlots[0][0][1].GetExpression()), "r"); // Saturate can be removed once degenerated torus are correctly handled
+                yield return new VFXNamedExpression(VFXOperatorUtility.Saturate(inputSlots[0][2].GetExpression() / inputSlots[0][1].GetExpression()), "r"); // Saturate can be removed once degenerated torus are correctly handled
             }
         }
 
@@ -50,12 +50,12 @@ namespace UnityEditor.VFX.Block
                 if (spawnMode == SpawnMode.Random)
                 {
                     outSource += @"float3 u = RAND3;";
-                    outSource += @"float arc = Torus_arc;";
+                    outSource += @"float arc = ArcTorus_arc;";
                 }
                 else
                 {
                     outSource += @"float3 u = float3(RAND, 1.0f, RAND);";
-                    outSource += @"float arc = Torus_arc * ArcSequencer;";
+                    outSource += @"float arc = ArcTorus_arc * ArcSequencer;";
                 }
 
                 outSource += @"
@@ -85,7 +85,7 @@ float s,c;
 sincos(phi,c,s);
 float3 t2 = float3(c * t.x - s * t.y,c * t.y + s * t.x,t.z);
 
-position += Torus_center + Torus_radius * t2;
+position += ArcTorus_center + ArcTorus_majorRadius * t2;
 direction = t2;
 ";
 

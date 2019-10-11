@@ -137,24 +137,30 @@ namespace UnityEditor.VFX
         [Tooltip("Sets the center of the cone."), VFXSpace(SpaceableType.Position)]
         public Vector3 center;
         [Tooltip("Sets the base radius of the cone.")]
-        public float baseRadius;
+        public float radius0;
         [Tooltip("Sets the top radius of the cone.")]
-        public float topRadius;
+        public float radius1;
         [Tooltip("Sets the height of the cone.")]
         public float height;
 
-        public static Cone defaultValue = new Cone { baseRadius = 1.0f, topRadius = 0.1f, height = 1.0f };
+        public static Cone defaultValue = new Cone { radius0 = 1.0f, radius1 = 0.1f, height = 1.0f };
     }
 
     [VFXType, Serializable]
     struct ArcCone
     {
-        [Tooltip("Sets the Cone shape input.")]
-        public Cone cone;
+        [Tooltip("Sets the center of the cone."), VFXSpace(SpaceableType.Position)]
+        public Vector3 center;
+        [Tooltip("Sets the base radius of the cone.")]
+        public float radius0;
+        [Tooltip("Sets the top radius of the cone.")]
+        public float radius1;
+        [Tooltip("Sets the height of the cone.")]
+        public float height;
         [Angle, Range(0, Mathf.PI * 2.0f), Tooltip("Controls how much of the cone is used. The value is in radians.")]
         public float arc;
 
-        public static ArcCone defaultValue = new ArcCone { cone = Cone.defaultValue, arc = 2.0f * Mathf.PI};
+        public static ArcCone defaultValue = new ArcCone { radius0 = 1.0f, radius1 = 0.1f, height = 1.0f, arc = 2.0f * Mathf.PI};
     }
 
     [VFXType, Serializable]
@@ -163,22 +169,26 @@ namespace UnityEditor.VFX
         [Tooltip("Sets the center of the torus."), VFXSpace(SpaceableType.Position)]
         public Vector3 center;
         [Tooltip("Sets the radius of the torus ring.")]
-        public float radius;
+        public float majorRadius;
         [Tooltip("Sets the thickness of the torus ring.")]
-        public float thickness;
+        public float minorRadius;
 
-        public static Torus defaultValue = new Torus { radius = 1.0f, thickness = 0.1f };
+        public static Torus defaultValue = new Torus { majorRadius = 1.0f, minorRadius = 0.1f };
     }
 
     [VFXType, Serializable]
     struct ArcTorus
     {
-        [Tooltip("Sets the Torus shape input.")]
-        public Torus torus;
+        [Tooltip("Sets the center of the torus."), VFXSpace(SpaceableType.Position)]
+        public Vector3 center;
+        [Tooltip("Sets the radius of the torus ring.")]
+        public float majorRadius;
+        [Tooltip("Sets the thickness of the torus ring.")]
+        public float minorRadius;
         [Angle, Range(0, Mathf.PI * 2.0f), Tooltip("Controls how much of the torus is used.")]
         public float arc;
 
-        public static ArcTorus defaultValue = new ArcTorus { torus = Torus.defaultValue, arc = 2.0f * Mathf.PI};
+        public static ArcTorus defaultValue = new ArcTorus { majorRadius = 1.0f, minorRadius = 0.1f, arc = 2.0f * Mathf.PI};
     }
 
     [VFXType, Serializable]
