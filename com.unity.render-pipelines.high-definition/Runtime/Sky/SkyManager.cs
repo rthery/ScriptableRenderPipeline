@@ -136,22 +136,14 @@ namespace UnityEngine.Rendering.HighDefinition
         public SkyManager()
         {
 #if UNITY_EDITOR
-    #if UNITY_2019_2_OR_NEWER
             UnityEditor.Lightmapping.bakeStarted += OnBakeStarted;
-#else
-            UnityEditor.Lightmapping.started += OnBakeStarted;
-#endif
-#endif
+    #endif
         }
 
         ~SkyManager()
         {
 #if UNITY_EDITOR
-    #if UNITY_2019_2_OR_NEWER
             UnityEditor.Lightmapping.bakeStarted -= OnBakeStarted;
-#else
-            UnityEditor.Lightmapping.started -= OnBakeStarted;
-#endif
 #endif
         }
 
@@ -215,18 +207,18 @@ namespace UnityEngine.Rendering.HighDefinition
         public void UpdateCurrentSkySettings(HDCamera hdCamera)
         {
             hdCamera.UpdateCurrentSky(this);
-        }
+            }
 
         public void SetGlobalSkyData(CommandBuffer cmd, HDCamera hdCamera)
-        {
-            if (IsCachedContextValid(hdCamera.lightingSky))
             {
+            if (IsCachedContextValid(hdCamera.lightingSky))
+                {
                 var renderer = m_CachedSkyContexts[hdCamera.lightingSky.cachedSkyRenderingContextId].renderer;
                 if (renderer != null)
-                {
+            {
                     renderer.SetGlobalSkyData(cmd, hdCamera.lightingSky.skySettings);
-                }
             }
+        }
         }
 
 #if UNITY_EDITOR
@@ -236,8 +228,7 @@ namespace UnityEngine.Rendering.HighDefinition
             {
                 m_DefaultPreviewSky = ScriptableObject.CreateInstance<HDRISky>();
                 m_DefaultPreviewSky.hdriSky.overrideState = true;
-                var hdrpAsset = (GraphicsSettings.currentRenderPipeline as HDRenderPipelineAsset);
-                m_DefaultPreviewSky.hdriSky.value = hdrpAsset?.renderPipelineResources?.textures?.defaultHDRISky;
+                m_DefaultPreviewSky.hdriSky.value = HDRenderPipeline.currentAsset?.renderPipelineResources?.textures?.defaultHDRISky;
             }
 
             return m_DefaultPreviewSky;
@@ -365,7 +356,7 @@ namespace UnityEngine.Rendering.HighDefinition
         Texture GetReflectionTexture(SkyUpdateContext skyContext)
         {
             if (skyContext.IsValid() && IsCachedContextValid(skyContext))
-            {
+        {
                 ref var context = ref m_CachedSkyContexts[skyContext.cachedSkyRenderingContextId];
                 context.lastFrameUsed = m_CurrentFrameIndex;
                 return context.renderingContext.skyboxBSDFCubemapArray;
@@ -802,7 +793,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
                     // If the luxmeter is enabled, we don't render the sky
                     if (debugSettings.data.lightingDebugSettings.debugLightingMode != DebugLightingMode.LuxMeter)
-                    {
+        {
                         // When rendering the visual sky for reflection probes, we need to remove the sun disk if skySettings.includeSunInBaking is false.
                         cachedContext.renderer.RenderSky(m_BuiltinParameters, false, hdCamera.camera.cameraType != CameraType.Reflection || skyContext.skySettings.includeSunInBaking.value);
                     }
