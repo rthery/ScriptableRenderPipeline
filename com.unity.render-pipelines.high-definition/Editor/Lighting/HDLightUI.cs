@@ -233,7 +233,7 @@ namespace UnityEditor.Rendering.HighDefinition
             {
                 using (var change = new EditorGUI.ChangeCheckScope())
                 {
-                    EditorGUILayout.PropertyField(lightData.lightlayersMask, s_Styles.lightLayer);
+                    EditorGUILayout.PropertyField(serialized.lightlayersMask, s_Styles.lightLayer);
 
                     // If we're not in decoupled mode for light layers, we sync light with shadow layers:
                     if (serialized.linkLightLayers.boolValue && change.changed)
