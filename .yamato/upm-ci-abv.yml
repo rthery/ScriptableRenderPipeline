@@ -31,7 +31,8 @@ all_project_ci:
   - dir
   dependencies:
   {% for project in projects %}
-    - .yamato/upm-ci-{{ project.name | downcase }}.yml#All_{{ project.name }}
+    - path: .yamato/upm-ci-{{ project.name | downcase }}.yml#All_{{ project.name }}
+      rerun: always
   {% endfor %}
   triggers:
     recurring:
