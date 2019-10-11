@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added after post process injection point for custom passes
 - Added basic alpha compositing support - Alpha is available afterpostprocess when using FP16 buffer format.
 - Added falloff distance on Reflection Probe and Planar Reflection Probe
+- Added Disc area light (bake only)
 
 ### Fixed
 - Sorting, undo, labels, layout in the Lighting Explorer.
@@ -100,6 +101,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Disable Physically Based Sky below ground
 - Increase max limit of area light and reflection probe to 128
 - Change default texture for detailmap to grey
+- Simplified Light's type API regrouping the logic in one place (Check type in HDAdditionalLightData)
 
 ## [7.1.1] - 2019-09-05
 
