@@ -163,6 +163,7 @@ linux_apis:
         - "**/test-results/**/*"  
 {% endfor %}   
 {% endfor %}
+{% endfor %}  
 
 All_{{ project.name }}:
   name: All {{ project.name }} CI
@@ -199,6 +200,5 @@ All_{{ project.name }}:
     
   {% endfor %}
   {% endfor %}
-
-{% endfor %}    
+  
 {% endfor %}
