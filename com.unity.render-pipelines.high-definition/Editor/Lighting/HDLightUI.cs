@@ -233,7 +233,7 @@ namespace UnityEditor.Rendering.HighDefinition
             {
                 using (var change = new EditorGUI.ChangeCheckScope())
                 {
-                    HDEditorUtils.LightLayerMaskPropertyDrawer(s_Styles.lightLayer, serialized.lightlayersMask);
+                    EditorGUILayout.PropertyField(lightData.lightlayersMask, s_Styles.lightLayer);
 
                     // If we're not in decoupled mode for light layers, we sync light with shadow layers:
                     if (serialized.linkLightLayers.boolValue && change.changed)
@@ -859,7 +859,7 @@ namespace UnityEditor.Rendering.HighDefinition
                     {
                         using (new EditorGUI.DisabledGroupScope(serialized.linkLightLayers.boolValue))
                         {
-                            HDEditorUtils.LightLayerMaskPropertyDrawer(s_Styles.shadowLayerMaskText, serialized.settings.renderingLayerMask);
+                            HDEditorUtils.DrawLightLayerMaskFromInt(s_Styles.shadowLayerMaskText, serialized.settings.renderingLayerMask);
                         }
                         if (serialized.linkLightLayers.boolValue)
                             SyncLightAndShadowLayers(serialized, owner);
