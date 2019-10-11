@@ -239,10 +239,7 @@ namespace UnityEngine.Rendering.HighDefinition
                 // The difference is that `l.lightmapBakeType` is the intent, e.g.you want a mixed light with shadowmask. But then the overlap test might detect more than 4 overlapping volumes and force a light to fallback to baked.
                 // In that case `l.bakingOutput.lightmapBakeType` would be baked, instead of mixed, whereas `l.lightmapBakeType` would still be mixed. But this difference is only relevant in editor builds
 #if UNITY_EDITOR
-                if (LightmapperUtils.Extract(light.lightmapBakeType) == LightMode.Realtime)
-                    lightDataGI.InitNoBake(light.GetInstanceID());
-                else
-                    LightDataGIExtract(light, ref lightDataGI);
+                LightDataGIExtract(light, ref lightDataGI);
 #else
                 if (LightmapperUtils.Extract(light.bakingOutput.lightmapBakeType) == LightMode.Realtime)
                     LightDataGIExtract(light, ref lightDataGI);

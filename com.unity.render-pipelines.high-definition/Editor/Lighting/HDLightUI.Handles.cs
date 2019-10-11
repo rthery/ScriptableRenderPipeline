@@ -162,7 +162,7 @@ namespace UnityEditor.Rendering.HighDefinition
         [DrawGizmo(GizmoType.Selected)]
         static void DrawGizmoForHDAdditionalLightData(HDAdditionalLightData src, GizmoType gizmoType)
         {
-            if (!(UnityEngine.Rendering.GraphicsSettings.renderPipelineAsset is HDRenderPipelineAsset))
+            if (!(UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline is HDRenderPipelineAsset))
                 return;
 
             if (src.type != HDLightType.Directional)
