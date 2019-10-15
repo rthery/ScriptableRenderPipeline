@@ -1,9 +1,9 @@
 namespace UnityEngine.Rendering
 {
-    class DebugUpdater : MonoBehaviour
+    public class DebugUpdater : MonoBehaviour
     {
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        static void RuntimeInit()
+        //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        public static void RuntimeInit()
         {
             if (!Debug.isDebugBuild || FindObjectOfType<DebugUpdater>() != null)
                 return;
